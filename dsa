@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CTA & Modal för Filuppladdning med Cloudinary och Filhantering</title>
+  <!-- SKELETON SHIMMER STYLES -->
+  <style>
+    .preview-skeleton-wrapper, .product-gallery__hero-skeleton {
+        border-radius: 8px !important;
+        width: 75px;
+        height: auto !important;
+        min-height: 75px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    :root {
+  /* Define your stripe colour once */
+  --secondary-bg: #5290CC;
+}
+    .modal-content-container {
+    max-width: 600px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+    .custom-divider {
+    height: 1px;
+    border-bottom: 1px solid #f1f2f3;
+    width: 100vw;
+}
+#file-upload-or-text {
+color: rgba(13,18,22,.86);
+    font-family: inter;
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 16px;
+   } 
+#file-drop-overlay {
+  display: none; /* visas dynamiskt via JavaScript */
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #f0f6ff !important;
+  z-index: 9999; /* hög siffra för att säkerställa att den hamnar ovanpå allt */
+  align-items: center;
+  justify-content: center;
+  font-size: 30px !important;
+  color: #121212;
+    font-family: Satoshi;
+    font-weight: 700;
+  text-align: center;
+}
+.modal-back-btn-container {
+max-width: 1430px;
+    width: 100%;
+    padding: 23px 0px;
+ } 
+.preview-image {
+    width: 75px !important;
+    height: auto !important;
+    object-fit: contain;
+    -webkit-filter: drop-shadow(0px 2px 4px #ccc);
+    filter: drop-shadow(0px 2px 4px #ccc);
+    max-height: 85px !important;
+}
+    body.modal-open {
+      overflow: hidden;
+    }
+    #ctaButton {
+      display: inline-block;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      height: 52px;
+      width: 100%;
+    }
+    #file-uploadModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+.modal-content-container {
+    max-width: 600px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+#file-modal {
+    background: #fff;
+    border-radius: 0px;
+    padding: 0px 32px;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+    #file-modal h2 {
+      margin-top: 60px;
+      font-size: 30px;
+    }
+    #file-back-btn {
+      position: absolute;
+      background: none;
+      border: none;
+      padding: 0px !important;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+    }
+    #file-back-btn svg {
+      margin-right: 8px;
+      width: 1em;
+      height: 1em;
+    }
+#file-uploadSection {
+    margin-top: 24px;
+    padding: 50px;
+    background: #f3f3f3;
+    border-radius: 20px;
+    border: 1px dashed #c8c8c8;
+    max-width: 900px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+    #file-upload-input {
+      display: none;
+    }
+#files-upload-label {
+    display: flex;
+    padding: 16px 45px !important;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: #fff !important;
+    border-radius: 8px;
+    cursor: pointer;
+    height: 52px;
+    font-family: 'Satoshi' !important;
+    font-weight: 700 !important;
+    justify-content: center;
+    width: max-content;
+    align-items: center;
+}
+        .replace-btn {
+      display: inline-block;
+      padding: 0px !important;
+      font-size: 15px !important;
+      background-color: transparent !important;
+      color: #007bff !important;
+      border-radius: 0px;
+      cursor: pointer;
+    }
+#file-infoContainer {
+    display: flex;
+    width: 100%;
+    margin-top: 24px;
+    box-sizing: border-box;
+    gap: 19px;
+    border: 1px solid #dadada;
+    border-radius: 8px;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+}
+    .file-col {
+      width: auto;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+.file-col.middle {
+    align-items: flex-start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 93.333% !important;
+    max-width: 93.333% !important;
+}
+.file-col.last {
+    align-items: flex-end;
+    width: 10%;
+}
+.file-col.middle .file-name {
+    font-weight: 400;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-align: left;
+    font-family: 'Inter';
+    color: #121212;
+        white-space: nowrap;
+    overflow: hidden;
+        width: 100%; /* Se till att detta är med */
+    text-overflow: ellipsis;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+
+  background: 
+    linear-gradient(
+      45deg,
+      var(--secondary-bg) 25%,
+      #5BA4E6 25%,
+      #5BA4E6 50%,
+      var(--secondary-bg) 50%,
+      var(--secondary-bg) 75%,
+      #5BA4E6 75%,
+      #5BA4E6
+    );
+  background-size: 30px 30px;
+  background-position: 0 0;
+
+  /* Notice the space before “0.5s” and correct keyframe name */
+  animation: reposition 0.5s linear infinite;
+}
+
+/* Make sure your keyframes are defined exactly the same name */
+@keyframes reposition {
+  from { background-position: 0 0; }
+  to   { background-position: 30px 0; }
+}
+
+/* For WebKit browsers, you can repeat if needed */
+@-webkit-keyframes reposition {
+  from { background-position: 0 0; }
+  to   { background-position: 30px 0; }
+}
+
+    .remove-icon {
+      cursor: pointer;
+    }
+    .modal-add-to-cart-container {
+width: 100%;
+    }
+#file-instructionSection {
+    margin: 35px 0px 22px 0px;
+    text-align: left;
+    width: 100%;
+}
+#file-instructionLabel {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 7px;
+    font-family: 'Inter';
+    color: #121212;
+    font-size: 15px;
+}
+.file-instruction-optional {
+    font-weight: 500;
+    display: inline-block;
+    margin: 0px 0px 0px 0px;
+    font-family: 'Inter';
+    color: #888;
+    font-style: italic;
+    font-size: 15px;
+    background: #fff;
+    border-radius: 8px;
+    letter-spacing: 0;
+    vertical-align: top;
+}
+#file-instructionInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #dadada;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Inter';
+    resize: vertical;
+    min-height: 80px;
+    transition: 0.3s;
+    line-height: 1.5;
+}
+#file-instructionInput:hover,
+#file-instructionInput:focus {
+    border: 1px solid rgb(136, 136, 136);
+}
+.file-error-container-box {
+    display: block;
+    color: #a94442;
+    background: #F2DEDE;
+    border: 1px solid #f8dada;
+    border-radius: 8px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    line-height: 1.4;
+    box-sizing: border-box;
+    border: 1px solid #cea1a9;
+}
+    @media (max-width: 728px) {
+#file-modal {
+    padding: 0px 17px;
+}
+#files-upload-label {
+    width: 100%;
+}
+#file-upload-or-text {
+    display: none !important;
+}
+#file-uploadSection {
+    padding: 0px;
+    background: #fff;
+    border-radius: 0px;
+    border: none;
+}
+#file-modal h2 {
+    margin-top: 35px;
+    font-size: 24px;
+}
+    .modal-back-btn-container {
+        padding: 16px 0px 13px 0px;
+    }
+    .modal-back-image {
+    max-width: 100%;
+    max-height: 100%;
+    padding-right: 80px;
+}
+    }
+
+    .modal-back-btn-container {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: stretch;
+      gap: 0;
+    }
+    .modal-back-image-container, .modal-back-btn-inner-container {
+      flex: 1 1 0;
+      width: 50%;
+      display: flex;
+      align-items: flex-start;
+    }
+    .modal-back-btn-inner-container {
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .modal-back-image {
+      max-width: 127.8px;   /* Justera storlek vid behov */
+      max-height: 32.69px;
+      object-fit: contain;
+      display: block;
+    }
+    .product-gallery__hero-skeleton {
+      background: #e0e0e0;
+      position: relative;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      overflow: hidden;
+      display: block;
+      will-change: transform;
+    }
+    .product-gallery__hero-skeleton::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(224,224,224,0) 0%,
+        rgba(245,245,245,0.95) 50%,
+        rgba(224,224,224,0) 100%
+      );
+      animation: skeleton-shimmer 1.2s infinite linear;
+      z-index: 11;
+      pointer-events: none;
+    }
+    @keyframes skeleton-shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .addToCartCustomButton:disabled,
+    .addToCartCustomButton.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      background: #007BFF !important;
+      cursor: not-allowed !important;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 1.55em;
+      height: 1.55em;
+      border: 2px solid #fff;
+      border-top: 2px solid #bbb;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-left: 0.5em;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+  </style>
+</head>
+<body>
+  <product-options-section class="app-block">
+    <div class="add-to-cart-container"><!-- Originalknappen injiceras av temat/app --></div>
+  </product-options-section>
+
+  <button id="ctaButton">Fortsätt</button>
+  
+  <!-- Detta input ska användas och fyllas, precis som i pitchprint! -->
+  <input type="hidden" id="text-685449e89261bc8a28b28eab" name="properties[fileName]" value="">
+
+  <div class="modal-overlay" id="file-uploadModal">
+    <div class="modal" id="file-modal">
+      <div class="modal-back-btn-container">
+        <div class="modal-back-image-container">
+          <img src="https://cdn.shopify.com/s/files/1/0881/5162/1970/files/png_hej32.png?v=1752521621" alt="Valfri text" class="modal-back-image">
+        </div>
+        <div class="modal-back-btn-inner-container">
+          <button class="back-btn" id="file-back-btn" onclick="closeModal(event)">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 1.414L5.414 9H17a1 1 0 1 1 0 2H5.414l4.293 4.293a1 1 0 0 1 0 1.414z" clip-rule="evenodd"></path>
+            </svg>
+            Gå tillbaka
+          </button>
+        </div>
+      </div>
+      <div class="custom-divider">&nbsp;</div>
+      <div class="modal-content-container" id="file-modal-content-container">
+        <h2 id="file-title">Ladda upp din fil</h2>
+        <div class="file-upload" id="file-uploadSection" style="position:relative;">
+          <label for="file-upload-input" id="files-upload-label">Välj fil...</label>
+<input type="file" id="file-upload-input" accept=".jpeg,.jpg,.png,.svg,.svgz,.tif,.tiff,.pdf,.ps,.eps,.ai,.psd,image/jpeg,image/png,image/svg+xml,application/pdf,image/tiff,application/postscript,image/vnd.adobe.photoshop,application/illustrator">
+          <div id="file-upload-or-text">eller släpp den här</div>
+          <div id="file-drop-overlay" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(200,200,200,0.5);z-index:10;align-items:center;justify-content:center;flex-direction:column;">
+            <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;">
+              <path d="M11.24 2.985c-2.735 0-5.04 2.075-5.316 4.788a.199.199 0 0 1-.123.162 5.729 5.729 0 0 0 1.994 11.097 5.727 5.727 0 0 0 5.727-5.727v-.486l1.782 1.782a.75.75 0 0 0 1.06-1.06l-3.062-3.063a.75.75 0 0 0-1.06 0L9.179 13.54a.75.75 0 0 0 1.06 1.06l1.783-1.781v.486A4.227 4.227 0 1 1 6.324 9.34a1.698 1.698 0 0 0 1.092-1.416c.198-1.943 1.855-3.44 3.825-3.44a3.848 3.848 0 0 1 3.785 3.174c.135.764.78 1.366 1.563 1.43 2.146.178 3.855 2.016 3.855 4.216a4.226 4.226 0 0 1-4.227 4.227h-1.914a.75.75 0 0 0 0 1.5h1.914a5.727 5.727 0 0 0 5.727-5.727c0-2.978-2.305-5.468-5.231-5.71a.25.25 0 0 1-.21-.196 5.348 5.348 0 0 0-5.262-4.414Z" fill="#121212"></path>
+            </svg>
+            Släpp filen här…
+          </div>
+        </div>
+        <div id="file-infoContainer" style="display:none;"></div>
+        <div id="file-errorContainer" class="file-error-container-box" style="display:none;"></div>
+        <div id="file-instructionSection" class="instruction-section" style="display:none;">
+<label for="file-instructionInput" id="file-instructionLabel">
+  Instruktioner
+  <span class="file-instruction-optional">Valfritt</span>
+</label>
+          <textarea id="file-instructionInput" placeholder="Berätta gärna för oss om du har några särskilda önskemål inför ditt korrektur."></textarea>
+        </div>
+        <div class="modal-add-to-cart-container" id="file-add-to-cart-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/cloudinary-core@2.13.0/cloudinary-core-shrinkwrap.min.js"></script>
+
+  <script>
+    let addToCartButton, uploadedUrl = null, uploadedPreviewUrl = null;
+    let attempts = 0, maxAttempts = 10;
+    const cloudName = 'dmgmoisae';
+    const uploadPreset = 'pitchprint_unsigned';
+    const cl = new cloudinary.Cloudinary({ cloud_name: cloudName, secure: true });
+
+    const SHOPIFY_PRODUCT_ID = window.ShopifyProductId || null;
+    const SHOPIFY_PRODUCT_TITLE = window.ShopifyProductTitle || null;
+    const SHOPIFY_CUSTOMER_ID = window.ShopifyCustomerId || null;
+    const SHOPIFY_LINE_ITEM_ID = window.ShopifyLineItemId || null;
+
+    // --- Filtypskontroll ---
+    const allowedExtensions = [
+      '.jpeg', '.jpg', '.png', '.svg', '.svgz', '.tif', '.tiff', '.pdf', '.ps', '.eps', '.ai', '.psd'
+    ];
+    const allowedMimeTypes = [
+      'image/jpeg', 'image/png', 'image/svg+xml', 'application/pdf', 'image/tiff',
+      'application/postscript', 'image/vnd.adobe.photoshop', 'application/illustrator'
+    ];
+    const allowedExtensionsString = "jpeg, .jpg, .png, .svg, .svgz, .tif, .tiff, .pdf, .ps, .eps, .ai, .psd";
+
+    function isAllowedFileType(file) {
+      if (!file) return false;
+      // Check extension
+      const fileName = file.name || '';
+      const ext = '.' + fileName.split('.').pop().toLowerCase();
+      if (allowedExtensions.includes(ext)) return true;
+      // Check special .svgz
+      if (fileName.toLowerCase().endsWith('.svgz')) return true;
+      // Check MIME
+      if (allowedMimeTypes.includes(file.type)) return true;
+      return false;
+    }
+
+    function generateProjectId() {
+      return (
+        SHOPIFY_LINE_ITEM_ID ||
+        ([1e7]+-1e3+-4e3+-8e3+-1e11)
+          .replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))
+      );
+    }
+
+    function setLatestFileNameInputFromStorage() {
+      const projects = JSON.parse(localStorage.getItem("pressify_project_map") || '{}');
+      const keys = Object.keys(projects);
+      if (keys.length === 0) {
+        console.log("[LOG] Inget projekt sparat ännu. Input rensas.");
+        document.getElementById('text-685449e89261bc8a28b28eab').value = '';
+        return;
+      }
+      const sorted = keys.map(k => projects[k])
+        .filter(p => p.date)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      const latest = sorted[0];
+      if (latest && latest.fileName) {
+        const input = document.getElementById('text-685449e89261bc8a28b28eab');
+        input.value = latest.fileName;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log("[LOG] Fyller input-fältet med senaste fileName:", latest.fileName);
+      }
+    }
+
+    function savePressifyProjectToLocalStorage({
+      previewUrl,
+      fileName,
+      lineItemId,
+      productId,
+      customerId,
+      productTitle,
+      cloudinaryPublicId
+    }) {
+      const storedProjects = JSON.parse(localStorage.getItem("pressify_project_map")) || {};
+      const projectId = lineItemId || generateProjectId();
+
+      storedProjects[projectId] = storedProjects[projectId] || {};
+      storedProjects[projectId].projectId = projectId;
+      storedProjects[projectId].lineItemId = lineItemId;
+      storedProjects[projectId].productTitle = productTitle;
+      storedProjects[projectId].previews = [previewUrl];
+      storedProjects[projectId].userId = customerId;
+      storedProjects[projectId].productId = productId;
+      storedProjects[projectId].fileName = fileName;
+      storedProjects[projectId].cloudinaryPublicId = cloudinaryPublicId;
+      storedProjects[projectId].date = new Date().toISOString();
+
+      localStorage.setItem("pressify_project_map", JSON.stringify(storedProjects));
+      document.dispatchEvent(new CustomEvent("pressify_project_saved", { detail: storedProjects[projectId] }));
+
+      setLatestFileNameInputFromStorage();
+    }
+
+    function initAddToCartButton() {
+      const container = document.querySelector('.add-to-cart-container');
+      const btn = container?.querySelector('button');
+      if (btn) {
+        addToCartButton = btn;
+        addToCartButton.id = 'addToCartCustomButton';
+        addToCartButton.classList.add('addToCartCustomButton');
+        addToCartButton.style.display = 'none';
+        return true;
+      }
+      return false;
+    }
+
+    function uploadToCloudinaryDirect(file, onProgress) {
+      return new Promise((resolve, reject) => {
+        const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+        xhr.upload.onprogress = e => {
+          if (e.lengthComputable && onProgress) {
+            onProgress((e.loaded / e.total) * 100);
+          }
+        };
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch (err) {
+              reject(err);
+            }
+          } else {
+            reject(new Error('Status ' + xhr.status));
+          }
+        };
+        xhr.onerror = err => reject(err);
+        xhr.send(formData);
+      });
+    }
+
+    function getCloudinaryPreviewUrl(uploadResult) {
+      if (uploadResult.resource_type === 'image') {
+        return cl.url(uploadResult.public_id, { width: 350, height: 350, crop: "fit", format: "png", secure: true });
+      }
+      if (uploadResult.resource_type === 'raw' || uploadResult.format === 'pdf') {
+        return `https://res.cloudinary.com/${cloudName}/image/upload/w_350,c_fit/${uploadResult.public_id}.png#page=1`;
+      }
+      return 'https://res.cloudinary.com/demo/image/upload/sample.jpg';
+    }
+
+    function submitToFormspree(instruction, fileUrl) {
+      const formData = new FormData();
+      formData.append('instruction', instruction);
+      formData.append('fileUrl', fileUrl);
+
+      if (addToCartButton && !addToCartButton.querySelector(".loading-spinner")) {
+        addToCartButton.appendChild(Object.assign(document.createElement("span"), { className: "loading-spinner" }));
+      }
+
+      fetch('https://formspree.io/f/mpwdejzw', { method: 'POST', body: formData });
+    }
+
+    function saveDesignMetaToShopify({ previewUrl, fileName, lineItemId, productId, customerId, productTitle, cloudinaryPublicId }) {
+      const detail = {
+        previewUrl,
+        fileName,
+        lineItemId,
+        productId,
+        customerId,
+        productTitle,
+        cloudinaryPublicId,
+        date: new Date().toISOString()
+      };
+      document.dispatchEvent(new CustomEvent("cloudinary_design_uploaded", { detail }));
+
+      savePressifyProjectToLocalStorage({
+        previewUrl,
+        fileName,
+        lineItemId,
+        productId,
+        customerId,
+        productTitle,
+        cloudinaryPublicId
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const poll = setInterval(() => { 
+        attempts++; 
+        if (initAddToCartButton() || attempts >= maxAttempts) clearInterval(poll); 
+      }, 500);
+
+      const cta = document.getElementById('ctaButton');
+      const modal = document.getElementById('file-uploadModal');
+      cta.addEventListener('click', e => { 
+        e.preventDefault(); 
+        modal.style.display = 'flex'; 
+        document.body.classList.add('modal-open'); 
+      });
+      window.closeModal = e => { 
+        e?.preventDefault(); 
+        modal.style.display = 'none'; 
+        document.body.classList.remove('modal-open'); 
+      };
+      modal.addEventListener('click', e => e.target === modal && closeModal());
+
+      const fileInput = document.getElementById('file-upload-input');
+      const uploadSec = document.getElementById('file-uploadSection');
+      const uploadOrText = document.getElementById('file-upload-or-text');
+      const infoCont = document.getElementById('file-infoContainer');
+      const errorCont = document.getElementById('file-errorContainer');
+      const instrSec = document.getElementById('file-instructionSection');
+      const instrInput = document.getElementById('file-instructionInput');
+      const dropOverlay = document.getElementById('file-drop-overlay');
+
+      // setLatestFileNameInputFromStorage(); // Inte vid sidladdning!
+
+      function showError(message) {
+        errorCont.innerHTML = message;
+        errorCont.style.display = "block";
+      }
+      function clearError() {
+        errorCont.innerHTML = "";
+        errorCont.style.display = "none";
+      }
+
+      function reset() {
+        fileInput.value = '';
+        uploadSec.style.display = 'flex';
+        if (uploadOrText) uploadOrText.style.display = 'block';
+        infoCont.style.display = 'none';
+        infoCont.innerHTML = '';
+        instrSec.style.display = 'none';
+        if (addToCartButton) {
+          addToCartButton.style.display = 'none';
+          addToCartButton.disabled = false;
+          addToCartButton.classList.remove('disabled');
+          addToCartButton.querySelector(".loading-spinner")?.remove();
+        }
+        uploadedUrl = null;
+        uploadedPreviewUrl = null;
+        instrInput.value = '';
+        clearError();
+
+        var input = document.getElementById('text-685449e89261bc8a28b28eab');
+        if (input) input.value = '';
+      }
+
+      function showFilePreviewAndReplaceBtn(file, previewUrl) {
+        infoCont.innerHTML = '';
+        infoCont.style.display = 'flex';
+        instrSec.style.display = 'block';
+
+        const col1 = document.createElement('div'); col1.className = 'file-col first';
+        const col2 = document.createElement('div'); col2.className = 'file-col middle';
+        const col3 = document.createElement('div'); col3.className = 'file-col last';
+
+        const skeletonWrapper = document.createElement('div');
+        skeletonWrapper.className = 'preview-skeleton-wrapper';
+        const skeleton = document.createElement('div');
+        skeleton.className = 'product-gallery__hero-skeleton';
+        skeleton.innerHTML = '<span style="opacity:0;">.</span>';
+        skeletonWrapper.appendChild(skeleton);
+        col1.append(skeletonWrapper);
+
+        const img = new Image();
+        img.alt = 'Förhandsgranskning';
+        img.className = 'preview-image';
+        img.style.display = 'none';
+        img.style.position = 'relative';
+        img.style.top = '0'; img.style.left = '0';
+        img.style.zIndex = '11';
+
+        skeletonWrapper.appendChild(img);
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'file-name';
+        nameEl.textContent = file.name;
+        col2.append(nameEl);
+
+        const rep = document.createElement('button');
+        rep.className = 'replace-btn';
+        rep.textContent = 'Ersätt fil';
+        rep.style.display = 'none';
+        rep.addEventListener('click', ev => {
+          ev.preventDefault();
+          reset();
+          fileInput.click();
+        });
+
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar';
+        const fill = document.createElement('div');
+        fill.className = 'progress-fill';
+        bar.append(fill);
+        col2.append(bar);
+
+        col2.append(rep);
+
+        const rem = document.createElement('div');
+        rem.className = 'remove-icon';
+        rem.innerHTML = '<svg fill="currentColor" height="16" viewBox="0 0 900 1000" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M844 156H683L616 45c-8-13-20-25-34-33S552 0 536 0H339c-16 0-32 4-46 12s-26 20-34 33l-67 111H31c-8 0-16 3-22 9s-9 14-9 22v32c0 8 3 16 9 22s14 9 22 9h32l41 662c1 24 12 46 29 63 18 16 41 25 65 25h480c23 0 46-9 64-25 17-17 28-39 29-63l42-662h31c8 0 16-3 22-9s9-14 9-22v-32c0-8-3-16-9-22s-14-9-22-9zM339 94h197l37 62H302l37-62zm339 812H198l-41-656h562l-41 656z"/></svg>';
+        rem.onclick = function() {
+          reset();
+        };
+        col3.append(rem);
+
+        infoCont.append(col1, col2, col3);
+
+        img.onload = () => {
+          skeleton.style.display = 'none';
+          img.style.display = 'block';
+          bar.style.display = 'none';
+          rep.style.display = 'inline-block';
+          if (addToCartButton) {
+            addToCartButton.disabled = false;
+            addToCartButton.classList.remove('disabled');
+          }
+        };
+        img.onerror = () => {
+          skeleton.style.display = 'none';
+          img.style.display = 'block';
+          img.src = 'https://res.cloudinary.com/demo/image/upload/sample.jpg';
+          bar.style.display = 'none';
+          rep.style.display = 'inline-block';
+          if (addToCartButton) {
+            addToCartButton.disabled = false;
+            addToCartButton.classList.remove('disabled');
+          }
+        };
+
+        setTimeout(() => { img.src = previewUrl; }, 10);
+      }
+
+      function handleFileUpload(file) {
+        if (!file || !addToCartButton) return;
+
+        clearError();
+
+        // Blockera otillåtna filtyper
+        if (!isAllowedFileType(file)) {
+          showError(`${file.name}: Är inte ett tillåtet format, vänligen ladda upp en av dessa filtyper: ${allowedExtensionsString}`);
+          fileInput.value = '';
+          return;
+        }
+
+        if (file.size > 100 * 1024 * 1024) {
+          showError(`Filen "${file.name}" måste vara mindre än 100 MB.`);
+          uploadSec.style.display = 'none';
+          infoCont.style.display = 'none';
+          instrSec.style.display = 'none';
+          addToCartButton.style.display = 'none';
+          addToCartButton.disabled = false;
+          addToCartButton.classList.remove('disabled');
+          addToCartButton.querySelector(".loading-spinner")?.remove();
+          if (uploadOrText) uploadOrText.style.display = 'none';
+          return;
+        } else {
+          clearError();
+        }
+
+        uploadSec.style.display = 'none';
+        if (uploadOrText) uploadOrText.style.display = 'none';
+        infoCont.innerHTML = '';
+        infoCont.style.display = 'flex';
+        instrSec.style.display = 'block';
+
+        const col1 = document.createElement('div'); col1.className = 'file-col first';
+        const col2 = document.createElement('div'); col2.className = 'file-col middle';
+        const col3 = document.createElement('div'); col3.className = 'file-col last';
+
+        const skeletonWrapper = document.createElement('div');
+        skeletonWrapper.className = 'preview-skeleton-wrapper';
+        const skeleton = document.createElement('div');
+        skeleton.className = 'product-gallery__hero-skeleton';
+        skeleton.innerHTML = '<span style="opacity:0;">.</span>';
+        skeletonWrapper.appendChild(skeleton);
+
+        const img = new Image();
+        img.className = 'preview-image';
+        img.style.display = 'none';
+        img.style.position = 'relative';
+        img.style.top = '0'; img.style.left = '0';
+        img.style.zIndex = '11';
+        skeletonWrapper.appendChild(img);
+
+        col1.append(skeletonWrapper);
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'file-name';
+        nameEl.textContent = file.name;
+        col2.append(nameEl);
+
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar';
+        const fill = document.createElement('div');
+        fill.className = 'progress-fill';
+        bar.append(fill);
+        col2.append(bar);
+
+        const rep = document.createElement('button');
+        rep.className = 'replace-btn';
+        rep.textContent = 'Ersätt fil';
+        rep.style.display = 'none';
+        rep.addEventListener('click', ev => {
+          ev.preventDefault();
+          reset();
+          fileInput.click();
+        });
+        col2.append(rep);
+
+        const rem = document.createElement('div');
+        rem.className = 'remove-icon';
+        rem.innerHTML = '<svg fill="currentColor" height="16" viewBox="0 0 900 1000" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M844 156H683L616 45c-8-13-20-25-34-33S552 0 536 0H339c-16 0-32 4-46 12s-26 20-34 33l-67 111H31c-8 0-16 3-22 9s-9 14-9 22v32c0 8 3 16 9 22s14 9 22 9h32l41 662c1 24 12 46 29 63 18 16 41 25 65 25h480c23 0 46-9 64-25 17-17 28-39 29-63l42-662h31c8 0 16-3 22-9s9-14 9-22v-32c0-8-3-16-9-22s-14-9-22-9zM339 94h197l37 62H302l37-62zm339 812H198l-41-656h562l-41 656z"/></svg>';
+        rem.onclick = function() {
+          reset();
+        };
+        col3.append(rem);
+
+        infoCont.append(col1, col2, col3);
+
+        const cartCont = document.getElementById('file-add-to-cart-container');
+        cartCont.innerHTML = '';
+        cartCont.append(addToCartButton);
+        addToCartButton.style.display = 'block';
+        addToCartButton.disabled = true;
+        addToCartButton.classList.add('disabled');
+        addToCartButton.querySelector(".loading-spinner")?.remove();
+
+        uploadToCloudinaryDirect(file, pct => fill.style.width = pct + '%')
+          .then(result => {
+            uploadedUrl = result.secure_url;
+            uploadedPreviewUrl = getCloudinaryPreviewUrl(result);
+
+            saveDesignMetaToShopify({
+              previewUrl: uploadedPreviewUrl,
+              fileName: file.name,
+              lineItemId: SHOPIFY_LINE_ITEM_ID,
+              productId: SHOPIFY_PRODUCT_ID,
+              customerId: SHOPIFY_CUSTOMER_ID,
+              productTitle: SHOPIFY_PRODUCT_TITLE,
+              cloudinaryPublicId: uploadedPreviewUrl
+            });
+
+            // Fyll rätt inputfält (samma som PitchPrint!)
+            const input = document.getElementById('text-685449e89261bc8a28b28eab');
+            if (input) {
+              input.value = file.name;
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            img.onload = () => {
+              skeleton.style.display = 'none';
+              img.style.display = 'block';
+              bar.style.display = 'none';
+              rep.style.display = 'inline-block';
+              if (addToCartButton) {
+                addToCartButton.disabled = false;
+                addToCartButton.classList.remove('disabled');
+              }
+            };
+            img.onerror = () => {
+              skeleton.style.display = 'none';
+              img.style.display = 'block';
+              img.src = 'https://res.cloudinary.com/demo/image/upload/sample.jpg';
+              bar.style.display = 'none';
+              rep.style.display = 'inline-block';
+              if (addToCartButton) {
+                addToCartButton.disabled = false;
+                addToCartButton.classList.remove('disabled');
+              }
+            };
+            img.src = uploadedPreviewUrl;
+            addToCartButton.onclick = ev => {
+              ev.preventDefault();
+              if (!addToCartButton.querySelector(".loading-spinner")) {
+                addToCartButton.appendChild(Object.assign(document.createElement("span"), { className: "loading-spinner" }));
+              }
+              submitToFormspree(instrInput.value, uploadedUrl);
+            };
+          })
+          .catch(err => {
+            showError("Uppladdningen misslyckades!");
+            console.error('[ERROR] Cloudinary-upload:', err);
+            if (addToCartButton) {
+              addToCartButton.disabled = false;
+              addToCartButton.classList.remove('disabled');
+              addToCartButton.querySelector(".loading-spinner")?.remove();
+            }
+          });
+      }
+
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        handleFileUpload(file);
+      });
+
+      let dragCounter = 0;
+      function showDropOverlay() { dropOverlay.style.display = 'flex'; }
+      function hideDropOverlay() { dropOverlay.style.display = 'none'; }
+      const fileModal = document.getElementById('file-modal');
+      ['dragenter','dragover','dragleave','drop'].forEach(evt => {
+        fileModal.addEventListener(evt, function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+      fileModal.addEventListener('dragenter', function(e) {
+        dragCounter++;
+        showDropOverlay();
+      });
+      fileModal.addEventListener('dragover', function(e) {
+        showDropOverlay();
+      });
+      fileModal.addEventListener('dragleave', function(e) {
+        dragCounter--;
+        if (dragCounter <= 0) {
+          hideDropOverlay();
+          dragCounter = 0;
+        }
+      });
+      fileModal.addEventListener('drop', function(e) {
+        dragCounter = 0;
+        hideDropOverlay();
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          // Kontrollera filtyp även vid drag & drop
+          if (!isAllowedFileType(file)) {
+            showError(`${file.name}: Är inte ett tillåtet format, vänligen ladda upp en av dessa filtyper: ${allowedExtensionsString}`);
+            fileInput.value = '';
+            return;
+          }
+          handleFileUpload(file);
+        }
+      });
+      dropOverlay.addEventListener('click', function(e) {
+        hideDropOverlay();
+      });
+
+      document.getElementById('text-685449e89261bc8a28b28eab').addEventListener('change', function() {
+        console.log('[LOG] fileName-input ändrades till:', this.value);
+      });
+    });
+  </script>
+</body>
+</html>
