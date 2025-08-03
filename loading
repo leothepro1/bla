@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Loading Indicator</title>
+  <style>
+    /* Din befintliga logik och styling - OBEGRÄNSAT! */
+    product-options-section .custom-loading,
+    .app-block .custom-loading,
+    .custom-loading {
+      position: static !important;
+      min-width: 50px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      left: auto !important;
+      top: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      z-index: auto !important;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <product-options-section class="app-block">
+      <span class="product-id" id="{{ product.id }}" price="{{product.selected_or_first_available_variant.price}}" compareprice="{{product.selected_or_first_available_variant.compare_at_price}}" isavailable="{{product.selected_or_first_available_variant.available}}" metadata01="" metadata02="" metadata03="" metadata04="" metadata05="" style="display: none"></span>
+      <div class="optionTitle"></div>
+      <div class="product-custom-option"></div>
+      <div class="option-price-container"></div>
+      <div class="add-to-cart-container"></div>
+      <div class="product-error-msg"></div>
+      <div class="custom-loading"><shadow-ring-spinner></shadow-ring-spinner></div>
+      <div class="custom-cart-view"></div>
+    </product-options-section>
+  </div>
+  
+  <script>
+    // Custom Element för isolerad spinner
+    class ShadowRingSpinner extends HTMLElement {
+      constructor() {
+        super();
+        const shadow = this.attachShadow({mode: 'open'});
+        // Byt HEX-koder och px-värden här för färg och tjocklek!
+        shadow.innerHTML = `
+          <style>
+            .super-spinner {
+              width: 35px;
+              height: 35px;
+              border-radius: 50%;
+              display: block;
+              background:
+                radial-gradient(farthest-side, #007BFF 94%, #0000) top/4px 4px no-repeat,
+                conic-gradient(#0000 30%, #007BFF);
+              -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 4px),#000 0);
+              mask: radial-gradient(farthest-side,#0000 calc(100% - 4px),#000 0);
+              animation: super-spin 1s infinite linear;
+            }
+            @keyframes super-spin {
+              100% { transform: rotate(1turn); }
+            }
+          </style>
+          <div class="super-spinner"></div>
+        `;
+      }
+    }
+    customElements.define("shadow-ring-spinner", ShadowRingSpinner);
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const loadingSelector = ".custom-loading";
+      const checkSelectors = [
+        ".optionTitle",
+        ".product-custom-option",
+        ".option-price-container",
+        ".add-to-cart-container",
+        ".product-error-msg",
+        ".custom-cart-view"
+      ];
+      // Shadow DOM spinner (isolerad)
+      const indicatorHtml = '<shadow-ring-spinner></shadow-ring-spinner>';
+
+      // Visa alltid indikatorn direkt vid sidinladdning
+      const loadingDiv = document.querySelector(loadingSelector);
+      if (loadingDiv && !loadingDiv.querySelector('shadow-ring-spinner')) {
+        loadingDiv.innerHTML = indicatorHtml;
+      }
+
+      function isAnyOptionSectionVisible() {
+        for (const selector of checkSelectors) {
+          const el = document.querySelector(selector);
+          if (
+            el &&
+            window.getComputedStyle(el).display !== "none" &&
+            window.getComputedStyle(el).visibility !== "hidden" &&
+            el.offsetParent !== null &&
+            el.offsetWidth > 0 &&
+            el.offsetHeight > 0
+          ) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function updateIndicator() {
+        const loadingDiv = document.querySelector(loadingSelector);
+        if (!loadingDiv) return;
+        if (!isAnyOptionSectionVisible()) {
+          if (!loadingDiv.querySelector('shadow-ring-spinner')) {
+            loadingDiv.innerHTML = indicatorHtml;
+          }
+        } else {
+          loadingDiv.innerHTML = "";
+        }
+      }
+
+      updateIndicator();
+      const observer = new MutationObserver(updateIndicator);
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
+      setInterval(updateIndicator, 300);
+    });
+  </script>
+</body>
+</html>
