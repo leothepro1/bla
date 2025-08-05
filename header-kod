@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburger Menu</title>
+    <!-- Lägg till Font Awesome för ikoner -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; overflow-x: hidden; }
+        #hamburgare-icon rect { width: 22px; fill: #121212; }
+        #hamburgare-main-title {
+            font-weight: 700 !important;
+            font-size: 18px;
+            color: #121212;
+            padding-top: 0;
+            padding-left: 0;
+            margin-bottom: 5px;
+            letter-spacing: 0px;
+            font-family: 'Satoshi';
+        }
+        #hamburgare-back {
+            cursor: pointer;
+            background: transparent;
+            border-radius: 50px;
+            padding: 0px;
+            margin-right: 4px;
+            display: flex;
+            margin-left: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        .hamburgare-slide-tag2 {
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #C4E1FF;
+            color: #00264E;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter';
+            font-weight: 450;
+            box-shadow: rgba(0, 0, 0, 0.08) 0 0.25rem 0.75rem;
+        }
+        #headertool_icons {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+        }
+        #hamburgare-trending-title65 {
+            border-top: 1px solid #eee;
+            font-family: Satoshi !important;
+            font-weight: 800 !important;
+            font-size: 11px;
+            color: #888;
+            padding-top: 20px;
+            padding-left: 0;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            letter-spacing: 1.2px !important;
+        }
+        #unique-icon-5321 {
+            width: 26px;
+            height: 26px;
+            margin-bottom: -7px;
+            margin-top: 0px;
+            margin-left: 8px;
+        }
+        #hamburgare-back svg {
+            width: 26px;
+            height: 26px;
+            fill: #121212;
+            margin-top: 2px;
+        }
+        .hamburgare-tab1 { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; cursor: pointer; color: #121212 !important; font-family: Satoshi !important; font-weight: 600; letter-spacing: 0px; font-size: 16px; text-decoration: none; border-bottom: 1px solid #eee; position: relative; }
+        .hamburgare-tab2 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0px 15px 20px;
+            cursor: pointer;
+            color: #121212 !important;
+            font-family: inter !important;
+            font-weight: 400;
+            letter-spacing: 0px;
+            font-size: 16px;
+            text-decoration: none;
+            border-bottom: none;
+            margin-bottom: 0px;
+        }
+        .hamburgare-tab3 { display: flex; justify-content: space-between; align-items: center; padding: 15px 0px 15px 20px; cursor: pointer; color: #121212 !important; font-family: inter !important; font-weight: 400; letter-spacing: 0px; font-size: 16px; text-decoration: none; border-bottom: none; }
+        #hamburgare-tab12 { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; cursor: pointer; color: #121212; font-family: Satoshi !important; font-weight: 500; letter-spacing: 0px; font-size: 16px; text-decoration: none; border-bottom: none; position: relative; }
+#hamburgare-icon {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 4px 0px 0px 0px;
+}
+.icon-container2367 {
+  padding: 0;
+  margin: 0;
+  line-height: 0; /* Viktig! */
+  display: inline-block; /* Om du vill att containern ska krympa till iconens storlek */
+}
+#hamburgare-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 75%;
+    height: 100vh;
+    background: #FFF;
+    transition: right 0.3s ease;
+    z-index: 10000;
+    overflow-y: auto;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    padding-bottom: 175px;
+}
+        #hamburgare-menu.open { right: 0; box-shadow: -2px 0 10px rgba(0,0,0,0.1); }
+        #hamburgare-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 9999; }
+        #hamburgare-overlay.active { display: flex !important; opacity: 1; pointer-events: auto; }
+        #hamburgare-header {
+            position: relative;
+            top: 0;
+            background: #fff;
+            padding: 20px 20px 14px 20px;
+            z-index: 10;
+            box-shadow: none;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: -12px;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(57,76,96,.15);
+        }
+        #hamburgare-icons { display: flex; justify-content: flex-end; width: 100%; margin-top: 0px; }
+        #hamburgare-divider { border-bottom: 1px solid #ccc; margin: 15px 0; width: 100%; }
+        .hamburgare-divider { border-bottom: 1px solid #F0F0F0; margin: 0px 0px 4px 0px; }
+        #hamburgare-main-links {
+            padding: 22px 20px 10px 20px;
+            margin-bottom: 0px;
+            background: #fff;
+            border-radius: 0px;
+        }
+        .hamburgare-main-link { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; font-family: Satoshi !important; font-weight: 600; color: #121212 !important; letter-spacing: 0px; font-size: 18px; }
+        .hamburgare-category-link { display: flex; justify-content: space-between; align-items: center; padding: 0px; cursor: pointer; font-family: Satoshi !important; font-weight: 600; color: #121212 !important; letter-spacing: 0px; font-size: 18px; }
+        .hamburgare-tab { display: flex; justify-content: flex-start; align-items: center; padding: 10px 0; cursor: pointer; font-family: Inter !important; font-weight: 400; letter-spacing: 0px; font-size: 16px; text-decoration: none; color: #121212 !important; border-bottom: none; }
+        .hamburgare-main-link:hover, .hamburgare-tab:hover, .hamburgare-tab1:hover, .login-profile-option:hover { background: #fff; border-radius: 8px; }
+        .hamburgare-main-link::after { content: none; }
+        .hamburgare-main-link svg, .hamburgare-tab svg { width: 28px; height: 28px; fill: rgba(0,0,0,0.88); }
+        .hamburgare-tab svg, .login-avatar-dropdown-arrow {
+            width: 23px !important;
+            height: 23px !important;
+        }
+        .hamburgare-overlay { display: none; position: absolute; top: 0; left: 100%; width: 100%; height: auto; background: #fff; padding: 0px; transition: left 0.3s ease; z-index: 100; }
+        .hamburgare-overlay.active { left: 0; display: block; }
+        .hamburgare-tab:first-child { font-weight: 400; }
+        .hamburgare-image-container { position: relative; margin: 30px 0px 40px 0px; }
+        .hamburgare-image-container a { display: block; text-decoration: none; }
+        .hamburgare-image-container img { width: 100%; border-radius: 10px; max-height: 200px; object-fit: cover; }
+        .hamburgare-image-text { position: absolute; top: 20px; left: 20px; color: #121212; font-weight: 600; font-family: Satoshi !important; font-size: 18px; margin-right: 30px; }
+        .hamburgare-image-button {
+            position: absolute;
+            left: 20px;
+            background: #121212 !important;
+            border: none;
+            border-radius: 80px !important;
+            box-shadow: rgba(0, 0, 0, 0.08) 0 0.25rem 0.75rem;
+            cursor: pointer;
+            padding: 0px;
+            bottom: 25px;
+            width: 45px;
+            height: 45px;
+            padding: 3px 5px 0px 7px !important;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            font-size: 18px;
+        }
+#hamburgare-trending {
+    padding: 12px 0px;
+    border-radius: 0px;
+    border-top: none;
+    background: #fff;
+    padding: 0px 20px 10px 20px;
+    border-bottom: 1px solid rgba(57, 76, 96, .15);
+    margin-bottom: 10px;
+}
+        #hamburgare-slider { display: flex; gap: 5px; overflow-x: auto; padding: 0; padding-bottom: 25px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #888 #f5f6f7; }
+        #hamburgare-slider::-webkit-scrollbar { height: 8px; }
+        #hamburgare-slider::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        #hamburgare-slider::-webkit-scrollbar-track { background: #f5f6f7; }
+        .hamburgare-slide { flex: 0 0 150px; height: 242px; background: #f0f0f0; border-radius: 15px; position: relative; text-align: center; width: 172px; }
+        .hamburgare-slide img { width: 87%; margin: 5px auto; display: block; }
+        .hamburgare-slide-tag { position: absolute; top: 10px; left: 10px; background: #0071E3; color: #fff; padding: 2px 8px; border-radius: 50px; font-size: 14px; font-family: 'Albert Sans'; font-weight: 450; }
+        a:-webkit-any-link { text-decoration: none !important; color: inherit; }
+        .hamburgare-slide-tag2 {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #D8EBFF;
+            color: #004289;
+            padding: 3px 8px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-family: 'Inter';
+            font-weight: 450;
+            box-shadow: rgba(0, 0, 0, 0.08) 0 0.25rem 0.75rem;
+        }
+        #hamburgare-about {
+            padding: 12px 0px;
+            margin: 0px 20px 0px 20px;
+            border-radius: 0px;
+            background: #fff;
+            border-top: 1px solid rgba(57,76,96,.15);
+        }
+        @media (min-width: 768px) { 
+            #hamburgare-menu { width: 30%; } 
+            #hamburgare-back svg { width: 26px; height: 26px; margin-left: 20px; fill: #121212; } 
+            .hamburgare-image-container img { width: 100%; border-radius: 10px; max-height: 250px; object-fit: cover; } 
+        }
+        .hamburgare-link-icon {
+            margin-right: 10px;
+            font-size: 24px;
+            color: #121212;
+        }
+        .hamburgare-main-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            padding: 12px 0;
+        }
+        .icon-container {
+            width: 42px;
+            height: 42px;
+            margin-right: 10px;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+        }
+        #acc-footer-login {
+            background: #007BFF;
+            color: #fff;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            padding: 5px 9px !important;
+            font-family: Satoshi !important;
+            font-weight: 700;
+            font-size: 15px !important;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 60px;
+            width: 100%;
+            height: 40px;
+        }
+        #mina-ordrar-unique-id {
+            background: #007BFF;
+            color: #fff;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            padding: 5px 9px !important;
+            font-family: Satoshi !important;
+            font-weight: 700;
+            font-size: 14px !important;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 0px;
+            width: auto !important;
+            height: 31px !important;
+            margin: 0px 0px 5px 0px !important;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+        }
+        .header-orders-btn {
+            width: auto !important;
+            height: 35px !important;
+            margin: 0 0 0 auto !important;
+            background: #007BFF;
+            color: #fff;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            padding: 5px 16px !important;
+            font-family: Satoshi !important;
+            font-weight: 700;
+            font-size: 15px !important;
+            cursor: pointer;
+            text-align: center;
+        }
+        #acc-footer-register {
+            background: #fff;
+            color: #323232;
+            border: 1px solid rgba(57,76,96,.15);
+            border-radius: 8px;
+            padding: 5px 9px !important;
+            font-family: Satoshi !important;
+            font-weight: 700;
+            font-size: 15px !important;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 0px;
+            width: 100%;
+            height: 40px;
+        }
+        #acc-footer-register a {
+            color: #323232;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        #acc-footer-register {
+            margin-top: 10px;
+            text-align: center;
+            font-family: Satoshi !important;
+            font-size: 15px;
+            color: #323232;
+            border: 1px solid rgba(57,76,96,.15);
+            padding: 11px 20px;
+            border-radius: 8px;
+        }
+        #hamburgare-overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: left;
+            padding: 20px 0px 17px 0px;
+            border-bottom: 1px solid rgba(57,76,96,.15);
+            margin-bottom: 10px;
+            gap: 5px;
+        }
+        #hamburgare-back {
+            cursor: pointer;
+        }
+        #login-profile-dropdown-unique .login-profile-option,
+        #login-profile-dropdown-unique form .login-profile-option {
+            all: unset;
+            box-sizing: border-box;
+            display: block;
+        }
+        #login-avatar-btn-unique {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+        }
+ #login-avatar-unique {
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    background: #EC407A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Inter';
+    font-weight: 400;
+    font-size: 14px;
+    text-transform: uppercase;
+    padding: 10px;
+    margin: 0px 0px;
+}
+        .login-avatar-dropdown-arrow {
+            margin-left: 0px;
+            width: 24px !important;
+            height: 24px !important;
+            transform: rotate(90deg);
+            display: inline-block;
+            vertical-align: middle;
+        }
+       #login-avatar-dropdown-unique {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #EC407A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 400;
+    font-size: 18px;
+    text-transform: uppercase;
+    margin: 0px 0px;
+    font-family: 'Inter';
+}
+        #login-profile-dropdown-unique {
+            display: none;
+            position: absolute;
+            right: -10px;
+            top: 45px;
+            background: #fff;
+            min-width: 240px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            z-index: 9999;
+            padding: 1rem 0;
+        }
+        #login-profile-dropdown-unique.login-active {
+            display: block;
+        }
+        #login-profile-header-unique {
+            display: flex;
+            align-items: center;
+            padding: 0 1.2rem 1rem 1.2rem;
+        }
+        #login-profile-info-unique {
+            margin-left: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        #login-profile-name-unique {
+            font-weight: 650;
+            font-size: 16px;
+            color: #121212;
+            text-align: left;
+            font-family: 'Satoshi';
+        }
+        #login-profile-email-unique {
+            cursor: pointer;
+            color: #676767;
+            transition: background 0.15s;
+            font-size: 14px !important;
+            text-align: left;
+            background: none;
+            border: none;
+            width: 100%;
+            margin-top: 2px;
+            display: block;
+            font-weight: 400;
+            font-family: 'Inter' !important;
+        }
+        #login-divider-unique {
+            height: 1px;
+            background: #ececec;
+            margin: 0.5rem 0 0.5rem 0;
+            border: none;
+        }
+        .login-profile-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0px 15px 20px;
+            cursor: pointer;
+            color: #121212 !important;
+            font-family: Inter;
+            font-weight: 400;
+            letter-spacing: 0px;
+            font-size: 15px;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+            border-radius: 0;
+            background: none;
+            border: none;
+            width: 100%;
+            transition: background 0.15s;
+            outline: none;
+        }
+.login-profile-option:last-child {
+    border-bottom: none;
+    border-top: 1px solid rgba(57,76,96,.15);
+    margin-top: 5px;
+    padding: 20px 0px 15px 20px;
+}
+        .login-profile-option:hover {
+            background: #F7F9FA;
+        }
+        .login-profile-option svg {
+            width: 23px !important;
+            height: 23px !important;
+        }
+        #login-option-6 {
+            color: #d00 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="icon-container23">
+        <svg xmlns="http://www.w3.org/2000/svg" id="hamburgare-icon" width="27" height="27" fill="none" viewBox="0 0 24 24">
+            <path fill="#121212" d="M4 6a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 6Zm0 6a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 12Zm.75 5.25a.75.75 0 0 0 0 1.5h14.5a.75.75 0 0 0 0-1.5H4.75Z"></path>
+        </svg>
+    </div>
+    <div id="hamburgare-overlay"></div>
+    <div id="hamburgare-menu">
+        <div id="hamburgare-header">
+            <span id="hamburgare-main-title">Meny</span>
+            <!-- Profilavatar-knapp (ersätter "Mitt konto" knapp) -->
+            {% if customer %}
+                {% assign email_initial = customer.email | slice: 0, 1 | upcase %}
+                <button class="login-avatar-btn" id="login-avatar-btn-unique" aria-label="Kundprofil" data-overlay="hamburgare-overlay-account">
+                    <div class="login-avatar" id="login-avatar-unique">
+                        {{ email_initial }}
+                    </div>
+                    <svg class="login-avatar-dropdown-arrow" viewBox="0 0 24 24">
+                        <path fill="#121212" d="m9.216 7.619 4.204 4.204a.25.25 0 0 1 0 .354l-4.204 4.204a.75.75 0 0 0 1.06 1.061l4.205-4.204a1.75 1.75 0 0 0 0-2.475l-4.204-4.205a.75.75 0 0 0-1.061 1.06"></path>
+                    </svg>
+                </button>
+            {% endif %}
+            <div id="hamburgare-divider"></div>
+        </div>
+        <div id="hamburgare-main-content">
+            <div id="hamburgare-main-links">
+                <div class="hamburgare-main-link" data-overlay="hamburgare-overlay-3">
+                    Etiketter
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="m9.216 7.619 4.204 4.204a.25.25 0 0 1 0 .354l-4.204 4.204a.75.75 0 0 0 1.06 1.061l4.205-4.204a1.75 1.75 0 0 0 0-2.475l-4.204-4.205a.75.75 0 0 0-1.061 1.06"></path>
+                    </svg>
+                </div>
+                              <div class="hamburgare-main-link" data-overlay="hamburgare-overlay-1">
+                    Förpackningar
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="m9.216 7.619 4.204 4.204a.25.25 0 0 1 0 .354l-4.204 4.204a.75.75 0 0 0 1.06 1.061l4.205-4.204a1.75 1.75 0 0 0 0-2.475l-4.204-4.205a.75.75 0 0 0-1.061 1.06"></path>
+                    </svg>
+                </div>
+                <div class="hamburgare-main-link" data-overlay="hamburgare-overlay-2">
+                    Tillbehör
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="m9.216 7.619 4.204 4.204a.25.25 0 0 1 0 .354l-4.204 4.204a.75.75 0 0 0 1.06 1.061l4.205-4.204a1.75 1.75 0 0 0 0-2.475l-4.204-4.205a.75.75 0 0 0-1.061 1.06"></path>
+                    </svg>
+                </div>
+            </div>
+            <div style="padding: 10px 20px;">
+                {% if customer %}
+                    <!-- "Mina ordrar" visas nu i headern om inloggad, så denna är tom. -->
+                {% else %}
+                    <button id="acc-footer-login" onclick="window.location.href='https://pressify.se/account/register'">Registrera dig</button>
+                    <button id="acc-footer-register" onclick="window.location.href='https://pressify.se/account/login'">Logga in</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Overlay panels -->
+        <div id="hamburgare-overlay-1" class="hamburgare-overlay">
+            <div id="hamburgare-overlay-header">
+                <div id="hamburgare-back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6.9 10.996h11.596a.75.75 0 0 1 0 1.5H6.9l4.377 4.377a.75.75 0 0 1-1.061 1.06l-4.95-4.95a1.75 1.75 0 0 1 0-2.474l4.95-4.95a.75.75 0 1 1 1.06 1.06L6.9 10.996z" fill="#121212"></path></svg>
+                </div>
+                <span class="hamburgare-category-link">Förpackningar</span>
+                <div id="hamburgare-divider"></div>
+            </div>
+                        <div id="hamburgare-trending">
+                <a href="https://pressify.se/collections/samples" class="hamburgare-tab" id="hamburgare-link-erbjudanden">
+                    Beställ prover 
+                </a>
+                <a href="https://pressify.se/pages/mallar" class="hamburgare-tab" id="hamburgare-link-nyheter">
+                    Färdiga mallar
+                </a>
+            </div>
+            <a href="https://www.pressify.se/collections/forpackningar-kuvert" class="hamburgare-tab2">Alla förpackningar</a>
+                        <a href="https://www.pressify.se/collections/fraktpasar" class="hamburgare-tab1 hamburgare-tab3">Fraktpåsar</a>
+            <a href="https://www.pressify.se/collections/kartonger" class="hamburgare-tab1 hamburgare-tab3">Kartonger</a>
+            <a href="https://www.pressify.se/collections/kuvert" class="hamburgare-tab1 hamburgare-tab3">Kuvert</a>
+            <a href="/products/packtejp" class="hamburgare-tab1 hamburgare-tab3">Packtejp</a>        
+        </div>
+        <div id="hamburgare-overlay-2" class="hamburgare-overlay">
+            <div id="hamburgare-overlay-header">
+                <div id="hamburgare-back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6.9 10.996h11.596a.75.75 0 0 1 0 1.5H6.9l4.377 4.377a.75.75 0 0 1-1.061 1.06l-4.95-4.95a1.75 1.75 0 0 1 0-2.474l4.95-4.95a.75.75 0 1 1 1.06 1.06L6.9 10.996z" fill="#121212"></path></svg>
+                </div>
+                <span class="hamburgare-category-link">Tillbehör</span>
+                <div id="hamburgare-divider"></div>
+            </div>
+            <a href="https://www.pressify.se/collections/tillbehor" class="hamburgare-tab2">Alla tillbehör</a>
+            <a href="https://www.pressify.se/products/tackkort" class="hamburgare-tab1 hamburgare-tab3">Tackkort</a>
+            <a href="https://www.pressify.se/products/packtejp" class="hamburgare-tab1 hamburgare-tab3">Packtejp</a>
+            <a href="https://www.pressify.se/products/posters" class="hamburgare-tab1 hamburgare-tab3">Posters</a>            
+            <a href="https://www.pressify.se/products/silkespapper" class="hamburgare-tab1 hamburgare-tab3">Silkespapper</a>
+            <a href="https://www.pressify.se/products/visitkort" class="hamburgare-tab1 hamburgare-tab3">Visitkort</a>
+        </div>
+       <div id="hamburgare-overlay-3" class="hamburgare-overlay">
+            <div id="hamburgare-overlay-header">
+                <div id="hamburgare-back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6.9 10.996h11.596a.75.75 0 0 1 0 1.5H6.9l4.377 4.377a.75.75 0 0 1-1.061 1.06l-4.95-4.95a1.75 1.75 0 0 1 0-2.474l4.95-4.95a.75.75 0 1 1 1.06 1.06L6.9 10.996z" fill="#121212"></path></svg>
+                </div>
+                <span class="hamburgare-category-link">Etiketter</span>
+                <div id="hamburgare-divider"></div>
+            </div>
+            <a href="https://www.pressify.se/collections/etiketter-1" class="hamburgare-tab2">Alla etiketter</a>
+            <a href="https://www.pressify.se/products/etiketter-pa-rulle" class="hamburgare-tab1 hamburgare-tab3">Etiketter på rulle</a> 
+            <a href="https://www.pressify.se/products/etiketter-pa-ark" class="hamburgare-tab1 hamburgare-tab3">Etiketter på ark</a>
+            <a href="https://www.pressify.se/products/flasketiketter" class="hamburgare-tab1 hamburgare-tab3">Flasketiketter</a>             
+            <a href="https://www.pressify.se/products/burketiketter" class="hamburgare-tab1 hamburgare-tab3">Burketiketter</a>  
+        </div>
+
+        <!-- Konto-overlay -->
+        <div id="hamburgare-overlay-account" class="hamburgare-overlay">
+            <div id="hamburgare-overlay-header">
+                <div id="hamburgare-back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6.9 10.996h11.596a...."></path></svg>
+                </div>
+                <span class="hamburgare-category-link">Mitt konto</span>
+                <div id="hamburgare-divider"></div>
+            </div>
+                <div class="login-profile-option" id="login-option-5" tabindex="0" onclick="window.location.href='https://pressify.se/pages/refer'">
+                    <span style="display:flex;align-items:center;gap:0.8em;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#121212" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19 7.3h-.274c.598-1.298.212-3.114-.996-4.02-2.03-1.087-4.087 1.195-5.728 3.342-1.642-2.147-3.699-4.43-5.729-3.342-1.207.906-1.594 2.722-.996 4.02H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.7a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2Zm-2.77-.02c.487 0 .746-.142.89-.27.16-.142.294-.368.353-.69.122-.66-.123-1.377-.551-1.764-.29-.113-.701-.085-1.448.491-.69.532-1.388 1.337-2.086 2.233h2.842ZM11.25 8.8H5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h6.25v-3Zm1.5 0v3H19a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-6.25Zm-1.5 4.5H6.5V19a.5.5 0 0 0 .5.5h4.25v-6.2Zm1.5 6.2v-6.2h4.75V19a.5.5 0 0 1-.5.5h-4.25ZM7.774 7.28h2.84c-.697-.896-1.395-1.7-2.085-2.233-.746-.576-1.157-.604-1.448-.49-.427.386-.672 1.104-.55 1.763.059.322.193.548.352.69.145.128.404.27.89.27Z"></path></svg>
+                        Referera vänner
+                    </span>
+                </div>
+                <div class="login-profile-option" id="login-option-5" tabindex="0" onclick="window.location.href='https://pressify.se/pages/faq'">
+                    <span style="display:flex;align-items:center;gap:0.8em;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#121212" d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm0-1.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17zm0-10a1 1 0 0 1 1 1V16a1 1 0 0 1-2 0v-4.5a1 1 0 0 1 1-1zm0-1.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"></path></svg>
+                        Hjälpcenter
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    const icon = document.getElementById('hamburgare-icon');
+    const menu = document.getElementById('hamburgare-menu');
+    const overlay = document.getElementById('hamburgare-overlay');
+    const mainLinks = document.querySelectorAll('.hamburgare-main-link[data-overlay]');
+    const overlays = document.querySelectorAll('.hamburgare-overlay');
+    const backButtons = document.querySelectorAll('#hamburgare-back');
+    const mainContent = document.getElementById('hamburgare-main-content');
+    const accountBtn = document.getElementById('login-avatar-btn-unique');
+    if (accountBtn) {
+        accountBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            const overlayId = accountBtn.getAttribute('data-overlay');
+            const overlayPanel = document.getElementById(overlayId);
+            overlayPanel.style.display = 'block';
+            setTimeout(() => overlayPanel.classList.add('active'), 10);
+            mainContent.style.display = 'none';
+        });
+    }
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('open');
+        overlay.classList.toggle('active');
+        mainContent.style.display = 'block';
+    });
+    overlay.addEventListener('click', () => {
+        menu.classList.remove('open');
+        overlay.classList.remove('active');
+        overlays.forEach(o => {
+            o.classList.remove('active');
+            setTimeout(() => o.style.display = 'none', 300);
+        });
+        mainContent.style.display = 'block';
+    });
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && e.target !== icon && menu.classList.contains('open')) {
+            menu.classList.remove('open');
+            overlay.classList.remove('active');
+            overlays.forEach(o => {
+                o.classList.remove('active');
+                setTimeout(() => o.style.display = 'none', 300);
+            });
+            mainContent.style.display = 'block';
+        }
+    });
+    mainLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const overlayId = link.getAttribute('data-overlay');
+            const overlayPanel = document.getElementById(overlayId);
+            overlayPanel.style.display = 'block';
+            setTimeout(() => overlayPanel.classList.add('active'), 10);
+            mainContent.style.display = 'none';
+        });
+    });
+    backButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const overlayPanel = button.closest('.hamburgare-overlay');
+            overlayPanel.classList.remove('active');
+            setTimeout(() => {
+                overlayPanel.style.display = 'none';
+                mainContent.style.display = 'block';
+            }, 300);
+        });
+    });
+    menu.addEventListener('scroll', () => {
+        const header = document.getElementById('hamburgare-header');
+        const overlayHeaders = document.querySelectorAll('#hamburgare-overlay-header');
+        if (menu.scrollTop > 0) {
+            header.classList.add('scrolled');
+            overlayHeaders.forEach(overlayHeader => overlayHeader.classList.add('scrolled'));
+        } else {
+            header.classList.remove('scrolled');
+            overlayHeaders.forEach(overlayHeader => overlayHeader.classList.remove('scrolled'));
+        }
+    });
+</script>
+</html>
