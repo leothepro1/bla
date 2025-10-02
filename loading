@@ -1,125 +1,2835 @@
-<!DOCTYPE html>
-<html lang="sv">
-<head>
-  <meta charset="UTF-8">
-  <title>Custom Loading Indicator</title>
-  <style>
-    /* Din befintliga logik och styling - OBEGRÄNSAT! */
-    product-options-section .custom-loading,
-    .app-block .custom-loading,
-    .custom-loading {
-      position: static !important;
-      min-width: 50px;
-      min-height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      left: auto !important;
-      top: auto !important;
-      right: auto !important;
-      bottom: auto !important;
-      z-index: auto !important;
+<!-- PITCHPRINT VERSION 10.0 -->
+<style>
+    @font-face {
+  font-family: 'Satoshi';
+  src: url('https://cdn.shopify.com/s/files/1/0881/5162/1970/files/Satoshi-Variable.woff2?v=1745426719') format('woff2'),
+       url('https://cdn.shopify.com/s/files/1/0881/5162/1970/files/Satoshi-Variable.woff?v=1745426719') format('woff'),
+       url('https://cdn.shopify.com/s/files/1/0881/5162/1970/files/Satoshi-Variable.ttf?v=1745426719') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrKzk0cC2h0eI.woff2') format('woff2'),
+       url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrKzk0cC2h0eI.woff') format('woff');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+[data-balloon][data-balloon-pos='down']:after {
+    font-family: inter !important;
+    font-weight: 400 !important;
+    background: #17304E !important;
+}
+#container>.menus>button:hover {
+    background-color: #35536B;
+    color: #121212 !important;
+}
+/* Dölj endast den gamla STÄNG-knappen med X-ikonen i top-menyn */
+#mod-menus-2 > button[data-cmd="close"]:has(> i.icon-x) {
+  display: none !important;
+}
+
+/* Dialogens stängknapp påverkas inte */
+.dialog .btn.close-btn { display: inline-flex !important; }
+#mod-menus-2 > button[data-cmd="download"] {
+  background: #111;
+  color: #fff;
+  border-radius: 10px;
+    height: 39px;
+        width: 39px;
+  padding: 0px;
+    font-size: 16px !important;
+    aspect-ratio: 1/1;
+  border: 1px solid #111;
+}
+#mod-menus-2 > button[data-cmd="download"] > i.icon-download-cloud {
+  font-size: 18px;     /* ikonstorlek om det är ikonfont */
+  line-height: 1;      /* tajtare vertikal centrering */
+}
+/* Bild i menyknappen: centreras och skalar snyggt inom .btn-padding */
+#mod-menus-2 .btn .btn-img {
+  display: block;         /* undvik text-baseline-glapp */
+  width: 108px;            /* ikonstorlek (matcha dina <i> 20–24px) */
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;   /* låt knappen ta klicket, inte img */
+  vertical-align: middle;
+}
+input#px-search {
+border: none !Important;
     }
-  </style>
+    /* Om du inte redan har detta: knyt områden till grid-areas */
+.tabs{ grid-area: tabs !important; }
+.panels{ grid-area: panels!important; }
+.stage-parent{ grid-area: stage-parent!important; }
+.menus{ grid-area: menus!important; width: 100%!important; }
+
+
+#container{
+  width: 100%!important;;
+  height: 100%!important;;
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0);
+  transition: background-color .3s ease-out;
+  display: grid;
+  z-index: 100;
+
+  /* 3 kolumner: tabs (70px), panels (300px), resten (1fr) */
+  grid-template-columns: 70px 300px 1fr !important;
+
+  /* 2 rader: topbar 70px, resten fyller */
+  grid-template-rows: 70px 1fr !important;
+
+  /* topbar över hela rad 1, resten under */
+  grid-template-areas:
+    "menus menus menus"
+    "tabs  panels stage-parent" !important;
+}
+
+    .preview.shown {
+    background: #F2F3F5 !important;
+}
+.colors>div>.user-color>.cols>.color.add>* {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  pointer-events: none;
+  color: #121212;
+}
+.colors>div>.user-color {
+    border-radius: 3px;
+    margin-right: 19px;
+}
+/* ----- IKONER ----- */
+.more-text>.slide>i,
+.transform>.slide>i,
+.depth>button {
+  color: #121212;
+}
+.pcr-app .pcr-interaction input:focus {
+    box-shadow: none !important;
+}
+.pcr-app .pcr-interaction input {
+    max-width: 47%;
+    border-radius: 20px;
+    letter-spacing: 0;
+}
+.pcr-app[data-theme=nano] .pcr-interaction {
+    padding: 0em;
+    justify-content: center;
+}
+.pcr-app .pcr-interaction .pcr-type.active {
+    color: #0049B8;
+    background: #D6E9FF;
+    border: 1px solid #0049B8 !important;
+    font-family: 'Satoshi';
+    font-weight: 700;
+}
+.colors>div>.user-color>.cols>.color>i {
+    font-weight: 500;
+}
+/* Dölj inbyggd ikonfont/img i tab-knappen */
+.tabs .tab-items .btn > i,
+.tabs .tab-items .btn > img { display:none !important; }
+
+/* Gemensam ikon-yta före texten */
+.tabs .tab-items .btn::before{
+  content:"";
+  display:inline-block;
+  width:22px; height:22px;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  margin-right:.5rem;
+  vertical-align:middle;
+}
+
+/* ---- Koppla dina SVG:er per tab-index ---- */
+/* 0: Bakgrund */
+.tabs .tab-items .btn[data-idx="0"]::before{
+  background-image:url("/assets/tabs/background.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="0"]::before{
+  background-image:url("/assets/tabs/background-active.svg");
+}
+
+/* 1: Texter */
+.tabs .tab-items .btn[data-idx="1"]::before{
+  background-image:url("/assets/tabs/text.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="1"]::before{
+  background-image:url("/assets/tabs/text-active.svg");
+}
+
+/* 2: Bilder */
+.tabs .tab-items .btn[data-idx="2"]::before{
+  background-image:url("/assets/tabs/pictures.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="2"]::before{
+  background-image:url("/assets/tabs/pictures-active.svg");
+}
+
+/* 3: Uppladdningar */
+.tabs .tab-items .btn[data-idx="3"]::before{
+  background-image:url("/assets/tabs/uploads.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="3"]::before{
+  background-image:url("/assets/tabs/uploads-active.svg");
+}
+
+/* 4: Sök (Pixabay) */
+.tabs .tab-items .btn[data-idx="4"]::before{
+  background-image:url("/assets/tabs/search.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="4"]::before{
+  background-image:url("/assets/tabs/search-active.svg");
+}
+
+/* 5: Facebook */
+.tabs .tab-items .btn[data-idx="5"]::before{
+  background-image:url("/assets/tabs/facebook.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="5"]::before{
+  background-image:url("/assets/tabs/facebook-active.svg");
+}
+
+/* 6: Instagram */
+.tabs .tab-items .btn[data-idx="6"]::before{
+  background-image:url("/assets/tabs/instagram.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="6"]::before{
+  background-image:url("/assets/tabs/instagram-active.svg");
+}
+
+/* 7: AI */
+.tabs .tab-items .btn[data-idx="7"]::before{
+  background-image:url("/assets/tabs/ai.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="7"]::before{
+  background-image:url("/assets/tabs/ai-active.svg");
+}
+
+/* 8: Hjälp */
+.tabs .tab-items .btn[data-idx="8"]::before{
+  background-image:url("/assets/tabs/help.svg");
+}
+.tabs .tab-items .btn.selected[data-idx="8"]::before{
+  background-image:url("/assets/tabs/help-active.svg");
+}
+
+.pcr-app[data-theme=nano] .pcr-selection {
+    gap: 0px !important;
+}
+.colors>div>.collections>.collection>.cols>.color>i {
+    font-weight: 400;
+    color: #fff;
+    opacity: 0;
+    transform: scale(.2);
+    transition: transform .3s ease-out, opacity .2s ease-out;
+}
+.pcr-app .pcr-interaction .pcr-result {
+    background: none;
+    color: #121212;
+    border: 2px solid white;
+    border-radius: 20px;
+    text-align: center;
+    min-width: 200px;
+    max-width: 100%;
+    text-transform: uppercase;
+    font-family: 'Inter';
+    font-size: 16px;
+}
+.download>div>.fieldset>label>input {
+  border-radius: 5px !important;
+}
+.download>div>.fieldset>label>input:checked {
+    border: 8px solid #F0F4F8;
+    border: #007BFF !important;
+    background: url(data:image/svg+xml;utf8,<svg stroke="white" fill="none" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" height="17px" width="17px" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>);
+    padding: 0px !important;
+    background-color: #007bff;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+h4 {
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #555;
+  margin-top: 20px !important;
+}
+
+.icon-file,
+.icon-eye {
+  display: none;
+}
+
+.download > div > button.primary {
+  width: 100%;
+  cursor: pointer;
+  justify-content: center;
+  background-color: #007BFF !important;
+  color: #fff !important;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 700;
+  border-radius: 8px !important;
+  letter-spacing: -0.15px;
+  font-size: 15px;
+}
+
+.download>div>.fieldset>label {
+  cursor: pointer;
+  color: #121212 !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.btn.on-light.wide i.icon-plus.sm, 
+.btn.on-light.wide i.icon-monitor.lg {
+  margin-right: 10px;
+  display: none !important;
+}
+
+#container>.panels>section>.collection-div>.cat {
+  margin-top: 10px;
+  padding-right: 0;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+input:hover,
+textarea:hover {
+  border-color: transparent;
+  box-shadow: none !important;
+}
+
+.colors>div>.user-color>.cols>.color.add {
+  background-color: #FFF !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.colors>div>.user-color>.cols>.select {
+  background-color: #FFF !important;
+}
+.colors>div>.user-color>.cols input {
+    width: 55px;
+    padding: 5px;
+    height: 40px;
+    color: #121212;
+    background-color: #fff;
+    text-align: center;
+    font-family: 'Inter';
+    font-weight: 400;
+    font-size: 16px;
+}
+.colors>div>.user-color>.picker>.stops {
+    width: 228px;
+    height: .5em;
+    border-radius: 50em;
+    margin: 10px 0;
+    background-color: #dadada;
+    position: relative;
+}
+.preview > div > button:last-child:hover {
+  /* Din hover-stil här */
+  background: #006FE6 !important;
+}
+.colors>div>.user-color>.cols>.select>select {
+    padding: 0px;
+    color: #007bff;
+    text-align: center;
+    text-align-last: center;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 15px;
+    margin-right: 10px;
+}
+.colors>div>.user-color>.cols>.select>select {
+    padding: 0px;
+    color: #121212;
+    text-align: center;
+    text-align-last: center;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 15px;
+}
+.colors>div>.user-color>.cols>.color.add {
+    background-color: #FFF !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dadada;
+    border-radius: 8px;
+    margin-right: 0px;
+}
+.colors>div>.collections>.collection>.title>div {
+    text-transform: none;
+    color: #121212 !important;
+    white-space: nowrap;
+    margin-left: 5px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+}
+.more-text>.anchors>button.selected {
+    background-color: #D6E9FF;
+    color: #0049B8;
+    border: 1px;
+    border-radius: 8px;
+}
+.colors>div>.collections>.collection>.cols>* {
+    height: 40px;
+    margin: 5px;
+    border-radius: 50px;
+    transition: box-shadow .3s ease-out;
+}
+.colors>div>.collections>.collection>.cols>.color:hover {
+    box-shadow: 0 0 0 2px #0071E3, inset 0 0 0 3px #F0F4F8;
+}
+/* ----- Grundläggande layout och fonts-list ----- */
+.fonts-list {
+  position: relative;
+  width: 90vw;
+  height: 90vh;
+  background-color: #fff;
+  color: #35536B;
+  border-radius: 15px;
+  grid-template-columns: auto;
+  grid-template-rows: 40px auto 40px;
+  grid-row-gap: 15px;
+  display: grid;
+  padding: 20px;
+}
+
+#container>.panels>section .select-group, 
+#container>.panels>section .input-group {
+  width: 100%;
+  display: flex;
+  align-items: center;
+padding: 0 !important;
+}
+
+#container>.panels>section>.collection-div>.cat>.thumb:hover {
+  color: transparent !important;
+  border-radius: 5px;
+  border: 1px solid #007BFF !important;
+}
+
+.font-display.selected,
+.font-display:hover,
+.font-display {
+  background-color: #fff;
+  color: #121212;
+}
+
+.font-display {
+  width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .3s ease-out, color .3s ease-out;
+  border-radius: 3px;
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.fonts>.flist>div.selected {
+  background-color: #F2F3F5;
+}
+.fonts>.flist>div.selected {
+    background-color: #E1E4E7;
+    border-radius: 8px;
+}
+.fonts>.flist>div:hover {
+    background-color: #f4f5f6;
+    border-radius: 8px;
+}
+.fonts>.add-own>button.primary {
+    background-color: #007BFF;
+    font-size: 15px;
+}
+.fonts>.add-own {
+    background-color: transparent;
+    padding: 5px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+/* ----- Collection & Thumb ----- */
+#container > .panels > section > .collection-div {
+  height: min-content;
+  padding: 0;
+  margin-top: 0;
+}
+
+#container > .panels > section > .collection-div > .cat > .thumb {
+    margin: 0px !important;
+    background-repeat: no-repeat;
+    background-size: contain !important;
+    width: 150px;
+    height: 110px;
+    background-position: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: color 0.3s ease-out, border-radius 0.3s ease-out;
+    color: transparent;
+    border: 1px solid #dadada !important;
+    border-radius: 8px !important;
+    position: relative;
+}
+
+#container > .panels > section > .collection-div > .cat.selected {
+    display: grid !important;
+    gap: 14px !important;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0px 0px;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* ----- Form inputs ----- */
+#container > .panels > section .select-group > .select > select,
+#container > .panels > section .input-group > .select > select,
+input,
+textarea {
+  color: #121212;
+  padding: 11px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  border: 1px solid #dadada !important;
+  width: 100%;
+  position: relative;
+  transition: none !important;
+  font-size: 16px;
+  border-radius: 8px !important;
+}
+
+#container > .panels > section > .search-group > .search input {
+  border: none !important;
+}
+
+#container>.panels>section>.search-group>.search:hover {
+  outline: 1px solid #0071E3;
+  border: none !important;
+  box-shadow: none !important;
+}
+#container>.panels>section .select-group>.input, #container>.panels>section .input-group>.input {
+    border-radius: 8px;
+    width: 100%;
+    position: relative;
+    transition: border-color .3s ease-out, box-shadow .3s ease-out;
+    display: flex;
+    align-items: center;
+    border: 1px solid #d2d2d2 !important;
+}
+#container>.panels>section .select-group>.input:hover, #container>.panels>section .input-group>.input:hover {
+    border-color: #0071E3;
+    box-shadow: none !important;
+}
+#container>.panels>section>.search-group {
+    width: 100%;
+padding: 0px !important;
+}
+#container>.panels>section>.search-group>.search {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dadada;
+  border-radius: 8px;
+  width: 100%;
+  position: relative;
+  transition: border-color .3s ease-out, box-shadow .3s ease-out;
+  margin-top: 9px;
+}
+#container>.panels>section .select-group>.select, #container>.panels>section .input-group>.select {
+    border: none !important;
+}
+#container > .panels > section > .search-group > .search {
+    height: auto;
+    display: flex;
+    align-items: center;
+    border: 1px solid #dadada !important;
+    border-radius: 8px;
+    width: 100%;
+    position: relative;
+    transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+    padding: 0px 10px;
+}
+#container>.panels>section .select-group>.select:hover,
+#container>.panels>section .input-group>.select:hover {
+  outline: 1px solid #0071E3 !important;
+  box-shadow: none;
+border-radius: 8px;
+}
+
+#container>.panels>section .select-group>.select:before, 
+#container>.panels>section .input-group>.select:before {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  content: "\e96b";
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  color: #121212;
+  pointer-events: none;
+  font-size: 26px;
+}
+
+/* ----- Navigator ----- */
+#container > .stage-parent > .navigator > div > .nav-thumb {
+  width: auto !important;
+  height: auto !important;
+  background-color: #FFF !important;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease-out, opacity 0.3s ease-out;
+  opacity: 1 !important;
+  border-radius: 8px !important;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #e6e6e6 !important;
+  bottom: 10px !important;
+  align-items: center;
+  text-align: center;
+  color: #121212;
+  padding: 6px 12px !important;
+}
+
+#container > .stage-parent > .navigator > div > .nav-thumb > * {
+  pointer-events: none;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+#container > .stage-parent > .navigator > div > .nav-thumb.selected {
+  pointer-events: none;
+  opacity: 1;
+  background: #FFF !important;
+  border: 1px solid #007BFF !important;
+  color: #121212;
+  outline: 0.5px solid #007BFF !important;
+}
+
+/* ----- Fonts-list interna element ----- */
+.fonts-list > .list > div {
+  width: 100%;
+  height: 100px;
+  padding: 15px;
+  margin: 3px 0;
+  background-color: #FFF;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out;
+  cursor: pointer;
+  color: #121212;
+  display: flex;
+  align-items: center;
+}
+
+.fonts-list > .pagination > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 40px;
+  border-radius: 50px;
+  background-color: #fff;
+  color: #6F6F74;
+  transition: background-color 0.3s ease-out;
+  margin: 5px;
+  cursor: pointer;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+}
+
+.fonts-list > .pagination > div.selected {
+  background-color: #fff;
+  pointer-events: none;
+  border: 1px solid #D2D2D7;
+  color: #6F6F74;
+}
+
+.fonts-list > .pagination > div.hover {
+  background-color: #fff;
+  pointer-events: none;
+  border: none;
+  color: #121212;
+}
+
+/* ----- Rubriker ----- */
+#uploads-title h3,
+#uploads-heading h3 {
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
+  color: #121212;
+  text-align: left !important;
+}
+#uploads-title h3 {
+  font-size: 20px;
+  margin-top: 24px !important;
+}
+#uploads-title {
+width: 100%;
+}
+#uploads-heading h3 {
+  font-size: 19px;
+  margin-top: 45px !important;
+}
+
+/* ----- Menyer och knappar ----- */
+#container > .menus > button:hover {
+  background: #f2f4f5 !important;
+}
+.fonts-list>.list>div:hover {
+    color: #121212;
+    background-color: #E1E4E7;
+}
+.fonts-list>.list>div.selected:hover {
+    background-color: #E1E4E7;
+}
+#container>.stage-parent>.context>.divider {
+    border-left: 1px solid #e5e5e5;
+    height: 100%;
+    width: 1px;
+    margin: 0px 10px;
+}
+.btn.multi {
+    padding: 5px 15px;
+    border-radius: 8px;
+    background: #007BFF;
+    font-family: 'Satoshi';
+    font-size: 15px;
+}
+.fonts-list>.pagination>div:hover {
+    background-color: #f2f4f5;
+    color: #121212;
+}
+.fonts-list > .select > select,
+.fonts-list > .select > select.hover {
+  color: #121212;
+  padding: 11px;
+  text-transform: capitalize;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 600;
+}
+
+.fonts-list > .select {
+  border: 1px solid #D2D2D7;
+  border-radius: 8px;
+  width: 300px;
+  position: relative;
+}
+
+.fonts-list > .select:before {
+  position: absolute;
+  right: 5px;
+  top: 6px;
+  content: "\e96b";
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  color: #D2D2D7;
+  pointer-events: none;
+  font-size: 26px;
+}
+
+.upload-container {
+    border: 1px dashed #c8c8c8 !important;
+    border-radius: 8px;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    box-sizing: border-box;
+    background: #f2f4f5;
+}
+
+.collection-div {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.thumb {
+  width: 100%;
+  height: 150px;
+  background-color: transparent !important;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.3s ease;
+}
+
+/* ----- Övriga text- och knappstilar ----- */
+.upload-info {
+  margin-top: 0 !important;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.45em;
+  font-size: 12px;
+  color: #333 !important;
+}
+
+.btn-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.download > div > button.primary {
+  width: 100%;
+  cursor: pointer;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #007BFF;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 600;
+}
+.download>div>.fieldset>label>input:checked {
+    border: 8px solid #F0F4F8;
+    background: #007BFF !important;
+    border: #007BFF !important;
+    background: url(data:image/svg+xml;utf8,<svg stroke="white" fill="none" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" height="17px" width="17px" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>);
+    padding: 0px !important;
+}
+.dialog > .dialog-buttons > button:first-child {
+  margin-left: 0;
+  background: #f7f7f7 !important;
+  border: 1px solid #121212;
+  color: #121212 !important;
+}
+
+.preview > div > button:hover {
+  background-color: #888;
+  color: #fff;
+}
+
+.dialog-form-textarea {
+  padding: 20px;
+  background-color: #FFFFFF;
+  border-left: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  color: #121212 !important;
+}
+
+.btn.wide {
+  padding: 15px 25px !important;
+}
+
+#container > .panels > section .btn-div > .btn {
+  text-transform: none;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+}
+
+.btn.on-light.wide {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 20px 37px !important;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    height: 53px;
+    max-height: 53px;
+    font-weight: 700;
+    font-size: 16px !important;
+}
+#upload-icon-unique {
+  width: 27px;
+  height: 27px;
+  margin-right: 8px;
+  display: none;
+}
+.btn.on-light.wide:hover {
+  background-color: #006fe6;
+}
+
+.btn.on-light.wide i.icon-plus.sm,
+.btn.on-light.wide i.icon-monitor.lg {
+  margin-right: 10px;
+}
+
+/* ----- Collection-div ytterligare (title) ----- */
+#container > .panels > section > .collection-div > .cat > .thumb > .title {
+  color: transparent;
+  background-color: transparent !important;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 5px;
+  border-radius: 0 0 3px 3px;
+  transition: background-color 0.3s ease-out;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+/* ----- Andra text- och liststilar ----- */
+.fonts > .flist > div {
+  text-transform: capitalize;
+  color: #121212;
+  padding: 5px 8px;
+  font-size: 25px;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: background-color 0.3s ease-out;
+  border-radius: 3px;
+}
+
+.category-name {
+  margin-bottom: 10px;
+  padding-left: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ----- Panels beskrivning ----- */
+#container > .panels > section > .desc {
+  text-transform: none;
+  font-size: 15px;
+  text-align: center;
+  width: 100%;
+  padding: 22px;
+  font-weight: 600;
+  margin-top: 65px;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.sidebar.shown {
+    pointer-events: auto;
+    left: 0;
+    background: #fff !important;
+}
+#container>.stage-parent>.context .color-indexes>div.selected {
+    pointer-events: none;
+    color: transparent;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #007bff, inset 0 0 0 2px #F0F4F8;
+}
+#container>.stage-parent>.context .color-indexes {
+    display: flex
+;
+    padding: 0px;
+    border-radius: 3px;
+    background-color: transparent;
+}
+/* ----- Mer knappar och grupper ----- */
+.more-text > .anchors > button {
+  font-weight: bold;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  border-radius: 1px;
+  padding: 10px;
+  margin-left: 5px;
+  color: #121212;
+}
+#container>.stage-parent>.context {
+    position: absolute;
+    height: 50px;
+    width: 100%;
+    left: 0;
+    top: -55px;
+    display: flex;
+box-shadow: none !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999999;
+    transition: top .3s 
+cubic-bezier(.05, .59, .14, 1);
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #dadada;
+}
+#container>.stage-parent>.context>button:hover,
+#container>.stage-parent>.context>button.selected {
+  background-color: #f2f4f5;
+  color: #121212;
+}
+#container>.stage-parent>.context>button {
+    border-radius: 8px;
+}
+#container>.menus>button.primary:hover {
+    background-color: rgba(255, 255, 255, .22) !important;
+    color: #fff !important;
+}
+.rightmenus>div>button:hover {
+    background-color: #f2f4f5 !important;
+    color: #121212 !important;
+}
+.rightmenus>div>button {
+    color: #121212;
+    width: 100%;
+    align-items: center;
+    background-color: transparent;
+    margin-left: 0 !important;
+    justify-content: flex-start;
+    font-family: 'Satoshi';
+    font-weight: 700;
+    font-size: 15px;
+}
+.rightmenus {
+    background-color: #FFFFFF;
+    width: 200px;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 99999999;
+    transition: opacity .1s ease-out;
+    border-radius: 1px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    border-radius: 8px;
+}
+.alignment > button {
+  font-weight: bold;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 10px;
+  margin-left: 5px;
+  color: #121212;
+}
+
+.fonts > .add-own > button,
+.dialog > .dialog-buttons > button,
+.dialog-form-textarea,
+#container > .panels > section .btn-div > button,
+.popup {
+  font-weight: 700;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 10px;
+  margin-left: 5px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ----- Preview ----- */
+.preview > div > button {
+  background: transparent !important;
+  border: none;
+}
+.preview>div>button:first-child {
+  border-radius: 8px;
+  color: #646464;
+transition: 0.2s ease;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+.preview.shown {
+  margin-top: 0;
+  transform: scale(1);
+  opacity: 1;
+}
+.preview>div>button:first-child:hover {
+  /* Din hover-stil här */
+     color: #121212 !important;
+}
+.preview > div > button:last-child {
+  border-radius: 8px !important;
+  background-color: #007BFF !important;
+  color: #FFF;
+transition: background 0.2s ease;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
+  border: none;
+  font-size: 16px;
+}
+.preview>div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  height: 44px;
+}
+.preview > div > .label {
+  margin: 0 40px;
+  color: #7f7f7f;
+  font-size: 16px;
+  text-align: center;
+  flex-shrink: 6;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+/* ----- Sidebar ----- */
+.sidebar {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 310px;
+  background: transparent;
+  pointer-events: none;
+  z-index: 99999999;
+  transition: left 0.4s cubic-bezier(0.05, 0.59, 0.14, 1);
+  overflow: hidden;
+}
+
+/* ----- Dialog & Popup ----- */
+.dialog {
+  background-color: #fff;
+  min-width: 350px;
+  position: relative;
+  border-radius: 15px;
+  max-width: 80%;
+  max-height: 80%;
+  font-size: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.dialog>.dialog-buttons>.btn.primary {
+  background-color: #007BFF;
+  margin-left: 10px;
+  font-size: 15px;
+}
+.dialog>.dialog-buttons>.btn.primary:hover {
+  background-color: #007BFF;
+  margin-left: 10px;
+}
+.dialog > div:nth-child(1) {
+  text-align: left;
+  text-transform: none;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 15px;
+  padding-bottom: 12px;
+  background-color: #fff;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #121212;
+}
+.dialog .content {
+  margin: 20px 15px;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow: visible;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #121212;
+}
+.dialog > .dialog-buttons > button:first-child {
+  background: #fff !important;
+  border: 1px solid #dadada !important;
+}
+.popup {
+  position: absolute;
+  background: #FFF;
+  border-radius: 10px;
+  padding: 5px;
+  opacity: 0;
+  transition: all 0.3s ease-out;
+  pointer-events: none;
+  min-width: 20px;
+  min-height: 20px;
+  z-index: 99999999;
+  transform: scale(0.9);
+  color: #55595B;
+  border: solid 1px #dadada;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+}
+
+
+
+/* ----- Input-grupper ----- */
+#container > .panels > section .select-group > .select > select,
+#container > .panels > section .input-group > .select > select,
+input,
+textarea {
+  color: #121212;
+  padding: 11px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  border: 1px solid rgba(18, 18, 18, 0.3);
+  width: 100%;
+  position: relative;
+  transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+  font-size: 16px;
+  border-radius: 3px;
+}
+.stripe-hover:hover {
+  animation: none !important;
+  background-image: none !important;
+  background-size: 1rem 1rem;
+}
+
+/* ----- Search ----- */
+#container > .panels > section > .search-group > .search {
+  height: min-content;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(18, 18, 18, 0.3);
+  border-radius: 8px;
+  width: 100%;
+  position: relative;
+  transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+#container > .panels > section > .search-group > .search input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+}
+
+#container > .panels > section > .search-group > .search button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+#container > .panels > section > .search-group > .search button i {
+  font-size: 16px;
+  color: #999;
+}
+#container > .stage-parent {
+  background: #F2F3F5 !important;
+}
+
+/* ----- Smarta storlekar ----- */
+.smart-sizes-app {
+  flex-direction: column;
+  background: transparent !important;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+}
+.smart-sizes-app.active {
+  display: flex !important;
+  align-items: flex-end;
+}
+.smart-sizes-app > div {
+  margin: 5px;
+  border: 1px solid #CECECE;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  border-radius: 0;
+  background-color: #FFF;
+}
+.smart-sizes-app > div.selected {
+  border: 1px solid #121212;
+}
+.smart-sizes-app > div > span {
+  font-size: 14px;
+  color: #121212;
+  pointer-events: none;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+/* Dölj enbart dessa tre knappar inne i #mod-menus-2 */
+#mod-menus-2 > button[data-cmd="grid"],
+#mod-menus-2 > button[data-cmd="text"],
+#mod-menus-2 > button[data-cmd="paste"] {
+  display: none !important;
+}
+
+/* ----- Stage-parent ----- */
+#container > .stage-parent {
+  grid-area: stage-parent;
+  height: 100%;
+  background: #F5f6f7;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  opacity: 1;
+  transition: opacity 0.3s ease-out, margin-left 0.3s ease-out, height 0.3s ease-out, top 0.3s ease-out;
+  overflow: hidden;
+}
+
+/* ----- Menyer ----- */
+#container > .menus {
+    grid-area: menus;
+    transition: margin-top 0.3s ease-out 0.1s;
+    background-color: #17304E;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: none;
+}
+
+#container > .menus > button {
+  font-weight: 500;
+  font-family: poppins;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 10px;
+  margin-left: 5px;
+  color: #fff;
+}
+#container > .menus > button.hover,
+#container > .menus > button.selected,
+#container > .stage-parent > .context > button.selected {
+    background-color: #E1E4E7;
+    color: #121212
+}
+#container > .stage-parent > .context > button {
+  background-color: #FFF;
+  color: #121212;
+}
+#container > .stage-parent > .context > button:hover,
+#container > .stage-parent > .context > button:selected {
+    background-color: #E1E4E7;
+    color: #121212
+}
+
+/* ----- Tabs ----- */
+#container > .tabs {
+  grid-area: tabs;
+  transition: margin-left 0.3s ease-out 0.3s, margin-top 0.3s ease-out 0.1s;
+  background-color: #FFF;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 9999;
+  border-right: 1px solid #E5E5E5;
+}
+#container > .tabs > .tab-items {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  gap: 15px;
+}
+#container > .tabs > .tab-items > .btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: scale(1) !important;
+        transition: background-color 0.4s ease-out, opacity 0.3s ease-out;
+        color: #575A5E;
+        margin: 5px 0;
+        font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        text-transform: none;
+        border-radius: 8px !important;
+        margin: 0px 10px;
+        width: 70px;
+    }
+#container > .tabs > .tab-items > .btn.selected {
+    color: #0071E3 !important;
+    border-bottom: none;
+    border-radius: 10px;
+    background: #E3F1FF !important;
+}
+
+#container > .tabs > .tab-items > .btn > span {
+  display: none;
+  font-size: 11px;
+  font-weight: 700 !important;
+  text-transform: capitalize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-top: 3px;
+  white-space: nowrap;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+#container>.tabs>.flap {
+  display: none;
+}
+#container>.menus>button.primary {
+    background-color: rgba(255, 255, 255, .11);
+    border: none;
+}
+#container>.menus>button.selected {
+    background-color: rgba(255, 255, 255, .11) !important;
+    color: #fff !important;
+}
+#container>.menus>button.high {
+    background-color: #fff !important;
+    color: #17304E;
+    font-weight: 700;
+    margin-right: 10px;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    border: 1px solid #fff !important;
+}
+#container>.menus>button.high:hover {
+    background-color: #e7e7e7 !important;
+    color: #17304E !important;
+    border: 1px solid #e7e7e7 !important;
+    height: 39px !important;
+}
+#container>.menus>button.primary>span {
+  margin: 0px;
+}
+#container>.tabs>.tab-items>.btn:hover {
+  color: #121212;
+  background: #fff;
+  border-radius: 8px !important;
+}
+.zoom {
+  display: grid;
+  grid-template-columns: 60px 180px 60px;
+  opacity: .8;
+  width: 60px;
+  transition: background-color .2s ease-out, width .3s ease-out .2s, opacity .2s ease-out .2s;
+  background-color: #fff !important;
+  border-radius: 0 3px 3px 0;
+  overflow: hidden;
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+}
+@media (max-width: 768px) {
+  .search-group {
+    margin-bottom: 0px;
+    padding: 10px;
+    text-align: center;
+    margin-top: 0px;
+  }
+  #container>.menus>button.high {
+    background-color: #007BFF !important;
+    color: #fff;
+    font-weight: 700;
+    margin-right: 0px !important;
+    font-size: 16px;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  #container > .tabs {
+    border-top: 1px solid #e5e5e5;
+  }
+  #container>.menus .btn.primary>span {
+    display: block !important;
+  }
+  .intro-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding-left: 50px;
+    padding-right: 50px;
+    text-align: center;
+    font-weight: 400;
+    color: #888;
+    line-height: 1.3em;
+    display: block;
+  }
+  #container>.panels>section .select-group>.input>input, 
+  #container>.panels>section .input-group>.input>input {
+    border: none;
+    background: none;
+    font-size: 16px;
+    padding: 10px;
+    width: 300px !important;
+    font-weight: 400 !important;
+    color: #121212;
+  }
+    #container > .tabs > .tab-items {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+        max-width: 100%;
+    }
+  #container>.panels>section>.collection-div {
+    height: 100%;
+    margin-left: 5px;
+    position: relative;
+    overflow-y: auto;
+  }
+  #container > .panels > section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0px 26px !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease-out;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    color: #121212;
+    background: #FFF !important;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    border: none;
+    top: 0%;
+justify-content: center;
+    align-items: center;
+padding: 0px 26px !important;
+  }
+
+    #container>.panels>.close {
+        background-color: #fff !important;
+        padding: 7px !important;
+        position: absolute;
+        border-radius: 8px !important;
+        right: 15px !important;
+        top: 15px !important;
+        line-height: 0;
+        cursor: pointer;
+        z-index: 999999;
+        fill: #121212 !important;
+        color: #121212 !important;
+        border: 1px solid #dadada;
+    }
+    #container>.panels>.close>i {
+        font-weight: 500;
+        pointer-events: none;
+        color: #121212;
+    }
+    #container>.panels>section>.collection-div>.cat.selected {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        justify-content: center;
+        align-items: flex-start;
+        gap: 10px !important;
+        height: max-content;
+    }
+  #uploads-images-grid .thumb {
+    background-color: #f5f5f5 !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    height: 110px !important;
+    background-size: cover !important;
+    width: 150px !important;
+  }
+}
+@media (min-width: 1024px) {
+  #container > .panels > section > .collection-div {
+    height: auto !important;
+  }
+#container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color .3s ease-out;
+    display: grid;
+    z-index: 100;
+    grid-template-columns: 80px 389px auto !important;
+    grid-template-rows: 58px auto !important;
+    grid-template-areas:
+        "tabs panels menus"
+        "tabs panels stage-parent";
+}
+  #container>.menus>button.high {
+    font-size: 15px;
+  }
+.i[class*=' icon'], i[class^='icon'], i[class^=' icon'] {
+    font-size: 22px;
+}
+  #container>.panels>section .select-group>.input>input, 
+  #container>.panels>section .input-group>.input>input {
+    border: none;
+    background: none;
+    font-size: 16px;
+    padding: 10px;
+    width: 100%;
+    font-weight: 400;
+    color: #121212;
+  }
+  .intro-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding-left: 30px;
+    padding-right: 30px;
+    text-align: center;
+    font-weight: 400;
+    color: #888;
+    line-height: 1.3em;
+  }
+  #container>.panels>section>.collection-div {
+    height: 100%;
+    margin: 0px !important;
+    position: relative;
+    overflow-y: auto;
+  }
+  .canvas-container {
+    width: 918px;
+    height: 863px;
+    position: absolute;
+    background-color: #f3f3f3 !important;
+  }
+  #container > .panels {
+    grid-area: panels;
+    transition: margin-left 0.3s ease-out 0.1s;
+    background-color: #F0F4F8;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  #container > .tabs {
+    grid-area: tabs;
+    transition: margin-left 0.3s ease-out 0.3s, margin-top 0.3s ease-out 0.1s;
+    background-color: #FFF;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 9999;
+    border-right: none;
+padding-top: 24px;
+  }
+  #container > .tabs > .tab-items > .btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: scale(1) !important;
+    transition: background-color 0.4s ease-out, opacity 0.3s ease-out;
+    color: #575A5E;
+    margin: 5px 0;
+    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-transform: none;
+    border-radius: 8px !important;
+        margin-left: 5px;
+  }
+  #container > .tabs > .tab-items {
+    flex-direction: column;
+    min-height: 100%;
+    gap: 15px;
+  }
+  .zoom {
+    display: none; 
+  }
+  #container > .tabs > .tab-items > .btn > span {
+    display: none;
+    font-size: 11px;
+    text-transform: capitalize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: normal;
+    padding-top: 8px;
+    white-space: nowrap;
+  }
+  #container > .panels > .close {
+    display: none;
+    top: 20px;
+    right: 20px;
+    border-radius: 25px;
+    background-color: #f7f7f7;
+    padding: 5px 10px;
+    color: #7f7f7f;
+    z-index: 99999;
+    border: none;
+  }
+  #container > .panels > section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0px 26px !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease-out;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    color: #121212;
+    background: #FFF !important;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    align-items: center;
+    justify-content: flex-start !important;
+    display: flex;
+    border: 1px solid #E5E5E5!important;
+    border-top: none !important;
+justify-content: center;
+    align-items: center;
+    border-bottom: none !important;
+  }
+  .preview > div > button {
+    background: transparent !important;
+    border: none;
+  }
+  #container > .stage-parent > .navigator > div > .nav-thumb {
+    width: auto !important;
+    height: auto !important;
+    background-color: #FFF !important;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 1 !important;
+    border-radius: 8px !important;
+    display: flex;
+    justify-content: center;
+    border: 1px solid #e6e6e6 !important;
+    bottom: 10px !important;
+    align-items: center;
+    text-align: center;
+    color: #121212;
+    padding: 9px 12px !important;
+  }
+  #container > .stage-parent > .navigator > div > .nav-thumb.selected {
+    pointer-events: none;
+    opacity: 1;
+    background: #FFF !important;
+    border: 1.5px solid #0071E3 !important;
+    color: #121212;
+  }
+  #uploads-images-grid .thumb {
+    background-color: #f5f5f5 !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    height: 110px !important;
+    background-size: cover !important;
+  }
+}
+</style>
+    <head>
+    <!-- Lägg till Google Fonts-länkar -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div>
-    <product-options-section class="app-block">
-      <span class="product-id" id="{{ product.id }}" price="{{product.selected_or_first_available_variant.price}}" compareprice="{{product.selected_or_first_available_variant.compare_at_price}}" isavailable="{{product.selected_or_first_available_variant.available}}" metadata01="" metadata02="" metadata03="" metadata04="" metadata05="" style="display: none"></span>
-      <div class="optionTitle"></div>
-      <div class="product-custom-option"></div>
-      <div class="option-price-container"></div>
-      <div class="add-to-cart-container"></div>
-      <div class="product-error-msg"></div>
-      <div class="custom-loading"><shadow-ring-spinner></shadow-ring-spinner></div>
-      <div class="custom-cart-view"></div>
-    </product-options-section>
+    <section id="container" data-module="container">
+<section class="tabs" data-module="tabs" rv-class-disabled="model.disabled" rv-on-click="model.click">
+  <div class="tab-items">
+    <button rv-data-idx="%tab%" rv-class-with-labels="model.enableLabels" rv-class-admin="tab.button.admin" data-cmd="tab" rv-each-tab="model.tabs" rv-hide="tab.disabled" rv-class-selected="tab.selected" class="btn is-large faded with-labels">
+      <!-- SVG OFF / ON växlar på tab.selected -->
+      <span class="tab-icon">
+        <img rv-if="tab.button.svg"       rv-src="tab.button.svg"       rv-hide="tab.selected" height="30" alt="{tab.title}">
+        <img rv-if="tab.button.svgActive" rv-src="tab.button.svgActive" rv-show="tab.selected"  height="30" alt="{tab.title}">
+      </span>
+
+      <!-- Fallback till ikonfont om inga SVG:er satta -->
+      <i rv-unless="tab.button.svgActive | or tab.button.svg" rv-add_class="tab.button.icon"></i>
+
+      <span>{tab.title | or '• •'}</span>
+    </button>
   </div>
-  
-  <script>
-    // Custom Element för isolerad spinner
-    class ShadowRingSpinner extends HTMLElement {
-      constructor() {
-        super();
-        const shadow = this.attachShadow({mode: 'open'});
-        // Byt HEX-koder och px-värden här för färg och tjocklek!
-        shadow.innerHTML = `
-          <style>
-            .super-spinner {
-              width: 35px;
-              height: 35px;
-              border-radius: 50%;
-              display: block;
-              background:
-                radial-gradient(farthest-side, #007BFF 94%, #0000) top/4px 4px no-repeat,
-                conic-gradient(#0000 30%, #007BFF);
-              -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 4px),#000 0);
-              mask: radial-gradient(farthest-side,#0000 calc(100% - 4px),#000 0);
-              animation: super-spin 1s infinite linear;
-            }
-            @keyframes super-spin {
-              100% { transform: rotate(1turn); }
-            }
-          </style>
-          <div class="super-spinner"></div>
-        `;
-      }
-    }
-    customElements.define("shadow-ring-spinner", ShadowRingSpinner);
+            <div class="spacer"></div>
+            <div rv-if="model.zoom.show" class="zoom" data-module="zoom">
+                <button class="btn is-large faded"><i class="icon-zoom-in"></i></button>
+                <input rv-on-input="model.zoom.change" type="range" step="0.01" max="2" min="0.05" rv-value="model.zoom.value" data-cmd="zoom" >
+                <button rv-on-click="model.zoom.click" data-cmd="reset" class="btn is-large faded"><i class="icon-refresh-cw"></i></button>
+            </div>
+            <div class="flap" rv-set_flap_top="model.selectedIndex">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15.5" height="68.903" viewBox="0 0 15.5 68.903"><path d="M15,83.919v-68.9c0,24.014,15.5,20.8,15.5,34.45S15,62.789,15,83.919Z" transform="translate(-15 -15.016)" fill="currentColor"/></svg>
+            </div>
+        </section>
+        <section data-module="panels" class="panels" id="panels">
+        <!--CLOSE BUTTON (FOR MOBILE)-->
+            <div class="close" id="panels-close"><i class="icon-x"></i></div>
+        <!--SIDE BAR (COLOR PANEL)-->
+            <div data-module="sidebar" class="sidebar"><div id="sbar"></div></div>
+        <!--BACKGROUND PANEL-->
+<section rv-class-selected="model.selected" data-module="backgrounds" rv-on-click="model.click" class="backgrounds">
+  <div id="uploads-title">
+    <h3>Ställ in sidbakgrund</h3>
+  </div>
+  <div class="select-group">
+    <div class="select">
+      <select rv-set_selected="model.collection">
+        <option rv-each-cat="model.collection" rv-value="cat.id">{cat.title}</option>
+      </select>
+    </div>
+  </div>
+  <div rv-if="model.enableSearch" class="search-group">
+    <div class="search">
+      <svg id="shopify-search2-svg-search" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="#121212" d="M15.2 16.34a7.5 7.5 0 1 1 1.38-1.45l4.2 4.2a1 1 0 1 1-1.42 1.41l-4.16-4.16zm-4.7.16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"></path>
+      </svg>
+      <input rv-on-keyup="model.input" rv-value="model.searchString" rv-placeholder="model.lang.gallery_search" data-cmd="search">
+      <button rv-if="model.showSearchCancel" type="button" class="button" data-cmd="clear-search" rv-on-click="model.click">
+        <!-- Bytte ut icon-x till din SVG -->
+        <svg id="Lager_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 179.2 179.2" width="24" height="24">
+          <path d="M132.8,0H46.4C20.8,0,0,20.8,0,46.4v86.3c0,25.6,20.8,46.4,46.4,46.4h86.3c25.6,0,46.4-20.8,46.4-46.4V46.4c0-25.6-20.8-46.4-46.4-46.4ZM168.5,95.8c-3.1-3.9-8.3-5.2-13.5-5.2-7.9-.1-15.6,2.9-21.6,8-11.8,10.1-35.2,30.2-38.4,31.5-4.2,1.8-11.7.5-13.2.1-1.5-.4-4-1.6-11-7.4-2.6-2.2-5.9-3-9-3.1-4.9-.3-9.7,1.2-13.8,4l-32,21.5-2.4,1.6c-1.9-4.3-2.9-9-2.9-14V46.4c0-19.6,16.1-35.7,35.7-35.7h86.3c19.6,0,35.7,16.1,35.7,35.7v49.4Z"/>
+          <circle cx="61.4" cy="55.6" r="22.1"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="collection-div is-scroll">
+    <div rv-each-cat="model.collection" rv-class-selected="cat.selected" class="cat">
+      <div class="thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" draggable="true" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="cat.items" rv-create_background="item.thumbnail">
+        <span class="title" rv-show="model.enableSearch" rv-if="item.title">{item.title}</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const loadingSelector = ".custom-loading";
-      const checkSelectors = [
-        ".optionTitle",
-        ".product-custom-option",
-        ".option-price-container",
-        ".add-to-cart-container",
-        ".product-error-msg",
-        ".custom-cart-view"
-      ];
-      // Shadow DOM spinner (isolerad)
-      const indicatorHtml = '<shadow-ring-spinner></shadow-ring-spinner>';
 
-      // Visa alltid indikatorn direkt vid sidinladdning
-      const loadingDiv = document.querySelector(loadingSelector);
-      if (loadingDiv && !loadingDiv.querySelector('shadow-ring-spinner')) {
-        loadingDiv.innerHTML = indicatorHtml;
-      }
+     <!--TEXTS PANEL-->
+<section rv-class-selected="model.selected" data-module="texts" rv-on-click="model.click" class="texts">
+  <div id="uploads-title">
+    <h3>Lägg till textstilar</h3>
+  </div>
 
-      function isAnyOptionSectionVisible() {
-        for (const selector of checkSelectors) {
-          const el = document.querySelector(selector);
-          if (
-            el &&
-            window.getComputedStyle(el).display !== "none" &&
-            window.getComputedStyle(el).visibility !== "hidden" &&
-            el.offsetParent !== null &&
-            el.offsetWidth > 0 &&
-            el.offsetHeight > 0
-          ) {
-            return true;
-          }
-        }
-        return false;
-      }
+  <!-- Snabbknapp som använder MENUS-modulens click-handler -->
+  <div class="texttools" data-module="menus" rv-on-click="model.click">
+    <button
+      data-balloon-pos="down"
+      rv-data-balloon="model.lang.add_text"
+      rv-class-selected="model.act.caretMode"
+      class="btn primary wide"
+      data-cmd="text"
+      aria-label="Lägg till text">
+      <i class="icon-type"></i>
+      <span>Lägg till text</span>
+    </button>
+  </div>
 
-      function updateIndicator() {
-        const loadingDiv = document.querySelector(loadingSelector);
-        if (!loadingDiv) return;
-        if (!isAnyOptionSectionVisible()) {
-          if (!loadingDiv.querySelector('shadow-ring-spinner')) {
-            loadingDiv.innerHTML = indicatorHtml;
-          }
-        } else {
-          loadingDiv.innerHTML = "";
-        }
-      }
+  <div rv-show="model.collection | length_is_gt_1" class="select-group">
+    <div class="select">
+      <select rv-set_selected="model.collection">
+        <option rv-each-cat="model.collection" rv-value="cat.id">{cat.title}</option>
+      </select>
+    </div>
+  </div>
 
-      updateIndicator();
-      const observer = new MutationObserver(updateIndicator);
-      observer.observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
-      setInterval(updateIndicator, 300);
-    });
-  </script>
-</body>
-</html>
+  <div class="collection-div is-scroll">
+    <div rv-each-cat="model.collection" rv-class-selected="cat.selected" class="cat">
+      <div
+        class="thumb"
+        rv-data-id="item.id"
+        loading="lazy"
+        rv-hide="item.hide"
+        draggable="true"
+        data-cmd="image-click"
+        rv-class-contain="item.isImage | negate"
+        rv-each-item="cat.items"
+        rv-create_background="item.thumbnail">
+        <span class="title" rv-show="model.enableSearch" rv-if="item.title">{item.title}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="select-group export-grp" id="export-input">
+    <div class="select">
+      <select id="export-select">
+        <option rv-each-cat="model.collection" rv-create_img_cat_option="cat" rv-value="cat.id">{cat.title}</option>
+      </select>
+    </div>
+    <button
+      rv-data-balloon="model.lang.new_cat"
+      data-balloon-pos="left"
+      id="export-add"
+      data-cmd="export-add"
+      class="btn rounded on-light ml10 faded">
+      <i class="icon-plus-circle"></i>
+    </button>
+  </div>
+</section>
+
+
+        <!--PICTURES PANEL-->
+<section rv-class-selected="model.selected" data-module="pictures" rv-on-click="model.click" class="pictures">
+                              <div id="uploads-title">
+    <h3>Lägg till element</h3>
+</div>
+                <div class="select-group">
+                    <div class="select">
+                        <select rv-set_selected="model.collection"><option rv-each-cat="model.collection" rv-value="cat.id">{cat.title}</option></select>
+                    </div>
+                </div>
+                <div rv-if="model.enableSearch" class="search-group">
+                    <div class="search">
+                    	<input rv-on-keyup="model.input" rv-value="model.searchString" rv-placeholder="model.lang.gallery_search" data-cmd="search">
+                    	<button rv-if="model.showSearchCancel" type="button" class="button" data-cmd="clear-search" rv-on-click="model.click"><i class="icon-x"></i></button>
+                    </div>
+                </div>
+                <div class="collection-div is-scroll">
+                    <div rv-each-cat="model.collection" rv-class-selected="cat.selected" class="cat">
+                        <div class="thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" draggable="true" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="cat.items" rv-create_background="item.thumbnail">
+                            <img rv-if="item.isImage" rv-src="item.thumbnail" loading="lazy" rv-id="item.id">
+                            <div rv-if="model.config.showAddThumb" data-cmd="add" rv-data-id="item.id" class="add"><i class="icon-plus"></i></div>
+                            <span class="title" rv-show="model.enableSearch" rv-if="item.title">{item.title}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+<!--UPLOAD PANEL-->
+<section rv-class-selected="model.selected" data-module="uploads" rv-on-click="model.click" class="uploads">
+    <!-- Beskrivning ovanför uppladdningsknappar -->
+    <div id="uploads-title">
+        <h3>Ladda upp filer</h3>
+    </div>
+    
+    <!-- Container med streckad linje och text under knappen -->
+    <div class="upload-container" style="border: 2px dashed #000; border-radius: 15px; padding: 20px; text-align: center;">
+        <!-- Här används den ordinarie uppladdningsknappen, centrerad i containern -->
+        <div class="btn-container" style="text-align: center; margin-bottom: 15px;">
+            <!-- Den ordinarie uppladdningsknappen, som ska vara den enda knappen -->
+            <button id="upload-file-btn" class="btn on-light wide" data-cmd="upload">
+                <svg id="upload-icon-unique" width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#fff">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11.956 6h.05a2.99 2.99 0 0 1 2.117.879 3.003 3.003 0 0 1 0 4.242 2.99 2.99 0 0 1-2.117.879h-1.995v-1h1.995a2.002 2.002 0 0 0 0-4h-.914l-.123-.857a2.49 2.49 0 0 0-2.126-2.122A2.478 2.478 0 0 0 6.23 5.5l-.333.762-.809-.189A2.49 2.49 0 0 0 4.523 6c-.662 0-1.297.263-1.764.732A2.503 2.503 0 0 0 4.523 11h2.494v1H4.523a3.486 3.486 0 0 1-2.628-1.16 3.502 3.502 0 0 1-.4-4.137A3.497 3.497 0 0 1 3.853 5.06c.486-.09.987-.077 1.468.041a3.486 3.486 0 0 1 3.657-2.06A3.479 3.479 0 0 1 11.956 6zm-1.663 3.853L8.979 8.54v5.436h-.994v-5.4L6.707 9.854 6 9.146 8.146 7h.708L11 9.146l-.707.707z"/>
+                </svg>
+                <i class="icon-plus sm"></i>
+                <i class="icon-monitor lg"></i>
+                <span class="sm">Välj fil...</span>
+                <span class="lg">Välj fil...</span>
+            </button>
+        </div>
+        <!-- Text under knappen -->
+        <div class="upload-info" style="margin-top: 15px;">
+                Format som stöds: PDF, PNG,<br>
+    JPEG, EPS, SVG
+        </div>
+    </div>
+
+    <div class="collection-div is-scroll" id="upload-grid">
+        <div class="cat selected">
+            <div rv-class-not-selectable="item.uploading" class="thumb upload-thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" draggable="true" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="model.items" rv-create_background="item.thumbnail">
+                <div rv-if="item.uploading" rv-id="item.id" class="circle-progress"></div>
+                <img id="upload-image-%item.id%" rv-if="item.isImage" rv-src="item.thumbnail" loading="lazy" rv-id="item.id">
+                <div rv-unless="item.uploading" data-cmd="remove" rv-data-idx="%item%" class="del"><i class="icon-minus-circle"></i></div>
+                <div rv-if="model.config.showAddThumb" data-cmd="add" rv-data-id="item.id" class="add"><i class="icon-plus"></i></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+<!-- PIXBAY SEARCH PANEL -->
+<section rv-class-selected="model.selected" data-module="search" rv-on-click="model.click" class="search">
+    <div id="uploads-title">
+        <h3>Bilder</h3>
+    </div>    <div>
+        <div rv-class-disabled="model.searching" class="input-group">
+            <div class="input">
+                <input rv-on-keyup="model.input" rv-placeholder="model.inputPlaceholder" data-cmd="input_changed" id="px-search">
+                <button rv-class-disabled="model.searchStop" class="btn" data-cmd="search" rv-class-anim-rotate="model.searching">
+                    <i rv-class-icon-loader="model.searching" rv-class-icon-arrow-right="model.searching | negate" class=""></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div rv-on-scroll="model.scroll" class="collection-div is-scroll">
+        <!-- Platshållarbilder och sökresultat -->
+        <div rv-each-cat="model.collection" rv-class-selected="cat.selected" class="cat">
+            <div class="thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" draggable="true" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="cat.items" rv-create_background="item.thumbnail">
+                <div rv-if="model.config.showAddThumb" data-cmd="add" rv-data-id="item.id" class="add"><i class="icon-plus"></i></div>
+            </div>
+        </div>
+        <!-- Text placerad UNDER bilderna -->
+        <div class="intro-text">
+            <p>Sök bland över 5,4 miljoner högupplösta, kristallklara bilder och ge liv åt din design</p>
+        </div>
+    </div>
+</section>
+        <!--FACEBOOK PANEL-->
+            <section rv-class-selected="model.selected" data-module="facebook" rv-on-click="model.click" class="facebook">
+                <div rv-unless="model.logged" class="fb-btn">
+                    <button  class="btn primary" data-cmd="login"><i class="icon-facebook"></i> <span>{model.btn_label}</span></button>
+                </div>
+                <div rv-if="model.logged" rv-html="model.description" class="desc"></div>
+                <div rv-if="model.logged" class="select-group">
+                    <div class="select">
+                        <select id="fb-category" rv-set_selected="model.collection"><option rv-each-cat="model.collection" rv-value="cat.id">{cat.title}</option></select>
+                    </div>
+                </div>
+                <div rv-on-scroll="model.scroll" class="collection-div is-scroll">
+                    <div rv-each-cat="model.collection" rv-class-selected="cat.selected" class="cat">
+                        <div class="thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" draggable="true" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="cat.items" rv-create_background="item.thumbnail">
+                            <img rv-if="item.isImage" rv-src="item.thumbnail" crossOrigin="Anonymous" loading="lazy" rv-id="item.id">
+                            <div rv-if="model.config.showAddThumb" data-cmd="add" rv-data-id="item.id" class="add"><i class="icon-plus"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        <!--INSTAGRAM PANEL-->
+            <section rv-class-selected="model.selected" data-module="instagram" rv-on-click="model.click" class="instagram">
+                <div rv-unless="model.logged" class="ig-btn">
+                    <button  class="btn" data-cmd="login"><i class="icon-instagram"></i> <span>{model.btn_label}</span></button>
+                </div>
+                <div rv-if="model.logged" rv-html="model.description" class="desc"></div>
+                <div rv-on-scroll="model.scroll" class="collection-div is-scroll">
+                    <div rv-each-cat="model.collection" rv-class-selected="cat.selected" class="cat">
+                        <div class="thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" draggable="true" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="cat.items" rv-create_background="item.thumbnail">
+                            <img rv-if="item.isImage" rv-src="item.thumbnail" crossOrigin="Anonymous" loading="lazy" rv-id="item.id">
+                            <div rv-if="model.config.showAddThumb" data-cmd="add" rv-data-id="item.id" class="add"><i class="icon-plus"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        <!--AI PANEL-->
+        <section rv-class-selected="model.selected" data-module="ai" rv-on-click="model.click" class="ai">
+                <div rv-html="model.description" class="desc"></div>
+                <div class="input-group">
+                    <div>
+                        <div><h4>Beskriv din bild här...:</h4></div>
+                        <div><i data-cmd="randomPrompt" class="icon-refresh-ccw"></i></div>
+                    </div>
+                    <textarea id="text_prompt" rv-placeholder="Ett lejon i en blomstrande djungel, realistisk stil." rv-value="model.textPrompt"></textarea>
+                </div>
+                <div class="btn-div aiSize">
+                   <span>Format:</span>
+                   <button class="btn primary" rv-class-active="model.activeSize | eq '1024x1024'" data-cmd="aiSize" data-size="1024x1024">
+                       <svg width="20" height="20" fill="currentcolor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="button-icon-0-2-171 button-icon-d39-0-2-702" data-testid="start-icon"><path d="M3.492 6c0-.688.242-1.273.727-1.758.5-.5 1.093-.75 1.781-.75h12c.688 0 1.273.25 1.758.75.5.485.75 1.07.75 1.758v12c0 .688-.25 1.281-.75 1.781a2.394 2.394 0 0 1-1.758.727H6a2.473 2.473 0 0 1-1.781-.727A2.473 2.473 0 0 1 3.492 18V6zm-1.5 12c0 1.11.39 2.055 1.172 2.836.781.781 1.727 1.172 2.836 1.172h12c1.11 0 2.055-.39 2.836-1.172.781-.781 1.172-1.727 1.172-2.836V6c0-1.11-.39-2.055-1.172-2.836-.781-.781-1.727-1.172-2.836-1.172H6c-1.11 0-2.055.39-2.836 1.172C2.383 3.945 1.992 4.891 1.992 6v12z"></path></svg>
+                       <span class="aiSizeText" rv-class-show="model.activeSize | eq '1024x1024'">Fyrkant</span>		
+                   </button>
+                   <button class="btn primary" rv-class-active="model.activeSize | eq '896x1152'" data-cmd="aiSize" data-size="896x1152">
+                       <svg width="20" height="20" fill="currentcolor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="button-icon-0-2-171 button-icon-d49-0-2-709" data-testid="center-icon"><path d="M15 3.492c.688 0 1.273.25 1.758.75.5.485.75 1.07.75 1.758v12c0 .688-.25 1.281-.75 1.781a2.394 2.394 0 0 1-1.758.727H9a2.473 2.473 0 0 1-1.781-.727A2.473 2.473 0 0 1 6.492 18V6c0-.688.242-1.273.727-1.758.5-.5 1.093-.75 1.781-.75h6zm-6-1.5c-1.11 0-2.055.39-2.836 1.172C5.383 3.945 4.992 4.891 4.992 6v12c0 1.11.39 2.055 1.172 2.836.781.781 1.727 1.172 2.836 1.172h6c1.11 0 2.055-.39 2.836-1.172.781-.781 1.172-1.727 1.172-2.836V6c0-1.11-.39-2.055-1.172-2.836-.781-.781-1.727-1.172-2.836-1.172H9z"></path></svg>
+                       <span class="aiSizeText" rv-class-show="model.activeSize | eq '896x1152'">Liggande</span>		
+                    </button>
+                   <button class="btn primary" rv-class-active="model.activeSize | eq '1344x768'" data-cmd="aiSize" data-size="1344x768">
+                       <svg width="20" height="20" fill="currentcolor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="button-icon-0-2-171 button-icon-d109-0-2-1341" data-testid="start-icon"><path d="M3.492 9c0-.688.242-1.273.727-1.758.5-.5 1.093-.75 1.781-.75h12c.688 0 1.273.25 1.758.75.5.485.75 1.07.75 1.758v6c0 .688-.25 1.281-.75 1.781a2.394 2.394 0 0 1-1.758.727H6a2.473 2.473 0 0 1-1.781-.727A2.473 2.473 0 0 1 3.492 15V9zm-1.5 6c0 1.11.39 2.055 1.172 2.836.781.781 1.727 1.172 2.836 1.172h12c1.11 0 2.055-.39 2.836-1.172.781-.781 1.172-1.727 1.172-2.836V9c0-1.11-.39-2.055-1.172-2.836-.781-.781-1.727-1.172-2.836-1.172H6c-1.11 0-2.055.39-2.836 1.172C2.383 6.945 1.992 7.891 1.992 9v6z"></path></svg>
+                       <span class="aiSizeText" rv-class-show="model.activeSize | eq '1344x768'">Stående</span>		
+                   </button>
+                </div>
+                <div class="tabs">
+                    <div class="btn-div">
+                        <button class="btn primary" rv-each-category="model.categories" rv-class-active="model.cat | eq category" data-cmd="category" rv-data-category="category">{category}</button>
+                    </div>
+                    <div id="prompts">
+                        <div rv-each-prompt="model.prompts" rv-data-idx="%prompt%">
+                            <img rv-src="prompt.img" rv-class-active="prompt.isActive | or false" data-cmd="selectPrompt"/>
+                            <span>{prompt.title}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-div">
+                    <button class="btn primary" rv-class-disabled="model.generating" data-cmd="generate" id="generate-btn"><span rv-hide="model.generating">Generera bild</span><span rv-show="model.generating">Genererar</span><i rv-class-icon-loader="model.generating" rv-class-anim-rotate="model.generating"></i></button>
+                </div>   
+            </section>
+        <!--HELP PANEL-->
+<section rv-class-selected="model.selected" data-module="help" class="help">
+                <div rv-html="model.data"></div>
+            </section>
+        </section>
+    <!--CANVAS AREA-->
+        <section class="stage-parent" data-module="stage-parent" rv-class-grab="model.panning" rv-class-grabbing="model.grabbing" rv-on-pointerdown="model.pointerdown" rv-on-mousedown="model.mousedown" rv-on-mouseup="model.mouseup">
+        <!--PAGE THUMBNAILS-->
+            <div rv-if="model.thumbs.show" rv-on-click="model.thumbs.click" data-module="stage-thumbs" class="stage-thumbs">
+                <div rv-each-page="model.thumbs.pages" rv-data-idx="%page%" data-cmd="thumb" rv-class-minimal="model.thumbs.disableLabels" rv-class-selected="page.selected" class="thumb">
+                    <div class="title">{page.pageData.title}</div>
+                    <div class="menus">
+                        <button rv-data-idx="%page%" data-cmd="view"><i class="icon-maximize-2"></i></button>
+                        <button rv-data-idx="%page%" data-cmd="delete"><i class="icon-trash-2"></i></button>
+                    </div>
+                    <div class="view" rv-style="page.thumb | to_background"></div>
+                    <div class="qty">
+                        <button rv-data-idx="%page%" data-cmd="minus"><i class="icon-minus"></i></button>
+                        <span>{page.pageData.quantity | append ' Copy| Copies'}</span>
+                        <button rv-data-idx="%page%" data-cmd="plus"><i class="icon-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        <!--STAGE-->
+            <div rv-class-locked="model.locked" rv-class-hide="model.hide" rv-class-opacity-7="model.panning" rv-class-no-action="model.panning" class="stage" id="stage"></div>
+            <div rv-if="model.showThumbsBack" rv-on-click="model.thumbs.click" class="thumbs-back-btn"><button data-cmd="thumbs-back"><i class="icon-arrow-left mr5"></i> {model.lang.thumbsBack | or 'Back to Collection'}</button></div>
+        <!--PAGE NAVIGATION-->
+            <section rv-on-click="model.nav.click" rv-unless="model.nav.hide" rv-class-pos-bottom="model.nav.posBottom" rv-class-expand-mode="model.nav.expandMode" rv-class-thumbnail="model.nav.thumbMode" class="navigator" data-module="navigator">
+                <div rv-show="model.nav.show" rv-class-thumb-mode="model.nav.thumbMode">
+                    <button class="btn faded mb5 anim" rv-class-disabled="model.nav.disable_button_prev" data-cmd="prev"><i class="icon-chevron-up"></i></button>
+                    <select rv-if="model.nav.posBottom" rv-hide="model.nav.thumbMode" rv-on-change="model.nav.change" rv-value="model.nav.selectedIndex">
+                        <option rv-each-page="model.nav.pages" rv-value="page.pageData.index">{page.pageData.title}</option>
+                    </select>
+        <div class="nav-thumb" data-cmd="nav" rv-data-idx="%page%" rv-show="model.nav.thumbMode" rv-each-page="model.nav.pages" rv-page="page.id" rv-class-selected="model.nav.selectedIndex | eq %page%">
+            <!-- Döljer bilden genom att inte visa den -->
+            <div class="nav-thumb-content">{page.pageData.title}</div> <!-- Endast texten kommer att synas här -->
+        </div>
+
+        <div rv-hide="model.nav.posBottom" data-balloon-pos="left" rv-data-balloon="page.pageData.title" data-cmd="nav" rv-data-idx="%page%" rv-class-selected="model.nav.selectedIndex | eq %page%" class="dot" rv-each-page="model.nav.pages"></div>
+
+        <button class="btn faded mt5 anim" rv-class-disabled="model.nav.disable_button_next" data-cmd="next"><i class="icon-chevron-down"></i></button>
+    </div>
+</section>
+        <!--CONTEXT MENU-->
+            <section rv-class-shown="model.context.show" rv-on-click="model.context.click" data-module="context" class="context">
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.scaleLess | or 'Shrink Photo'" rv-class-disabled="model.context.disableLess" rv-if="model.context.buttons.scaleLess" class="btn" data-cmd="scale-less"><i class="flipX icon-zoom-out"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.scaleMore | or 'Expand Photo'" rv-class-disabled="model.context.disableMore" rv-if="model.context.buttons.scaleMore" class="btn" data-cmd="scale-more"><i class="icon-zoom-in"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.configure | or 'Configure'" rv-if="model.context.buttons.configure" class="btn" data-cmd="configure-menu"><i class="icon-settings"></i></button>
+                
+                <div class="crop" rv-if="model.context.crop.show" rv-on-click="model.context.crop.click" data-module="image-crop">
+                    <button data-balloon-pos="down" rv-data-balloon="model.lang.button_label_cancel" class="btn" data-cmd="cancel"><i class="icon-x"></i></button>
+                    <button data-balloon-pos="down" rv-data-balloon="model.lang.crop_yes | or 'Yes, Apply crop'" class="btn" data-cmd="okay"><i class="icon-check"></i></button>
+                </div>
+                <div rv-show="model.context.buttons.colorShapes">
+                    <div rv-show="model.context.act.colorIndexes | length_is_gt" class="color-indexes mr10">
+                        <div data-cmd="color-index" rv-data-idx="%color%" rv-create_background_gradient="color" rv-class-icon-check="model.context.act.shapeColorIndex | eq %color%" rv-class-selected="model.context.act.shapeColorIndex | eq %color%" rv-each-color="model.context.act.colorIndexes"></div>
+                    </div>
+                </div>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.edit_image" rv-if="model.context.buttons.edit" class="btn" data-cmd="edit-image"><i class="icon-p-wand"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.context.remove_background_label | or 'Undo Remove Background'" rv-if="model.context.buttons.edit" class="btn" rv-class-selected="model.context.backgroundRemoved" data-cmd="remove-bg"><i class="icon-camera-off"></i></button>
+                
+                <button data-balloon-pos="down" rv-if="model.context.buttons.draw" class="btn" data-cmd="pointer"><i class="icon-mouse-pointer"></i></button>
+                <button data-balloon-pos="down" rv-class-selected="model.context.act.drawShape | eq 'path'" rv-data-balloon="model.lang.path_tip | or 'Draw a Path'" rv-if="model.context.buttons.draw" class="btn" data-cmd="path"><i class="icon-p-draw-pen"></i></button>
+                <button data-balloon-pos="down" rv-class-selected="model.context.act.drawShape | eq 'line'" rv-data-balloon="model.lang.line_tip | or 'Draw a Line'" rv-if="model.context.buttons.draw" class="btn" data-cmd="line"><i class="rot-45 icon-minus"></i></button>
+                <button data-balloon-pos="down" rv-class-selected="model.context.act.drawShape | eq 'rect'" rv-data-balloon="model.lang.rectangle_tip | or 'Draw a Rectangle'" rv-if="model.context.buttons.draw" class="btn" data-cmd="rect"><i class="icon-square"></i></button>
+                <button data-balloon-pos="down" rv-class-selected="model.context.act.drawShape | eq 'circle'" rv-data-balloon="model.lang.circle_tip | or 'Draw a Circle'" rv-if="model.context.buttons.draw" class="btn" data-cmd="circle"><i class="icon-circle"></i></button>
+                
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.color_tip" rv-if="model.context.buttons.color" class="btn" data-cmd="colors"><img src="assets/drop.svg"></button>
+                
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.undock | or 'Convert to a Picture Item'" rv-if="model.context.buttons.undock" class="btn" data-cmd="undock-background-image"><i class="icon-p-sort-pages"></i></button>
+                
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.bg_size | or 'Background positioning'" rv-if="model.context.buttons.bgSize" class="btn" data-cmd="position-background-image"><i rv-class-icon-square="model.context.bgMode | eq 'stretch'" rv-class-icon-minimize="model.context.bgMode | eq 'fit'" rv-class-icon-maximize="model.context.bgMode | eq 'fill'"></i></button>
+                
+  <button data-balloon-pos="down" rv-data-balloon="model.lang.dock | or 'Apply as Background Image'" rv-if="model.context.buttons.dock" class="btn" data-cmd="dock-background-image">
+    <!-- Ny SVG-ikon här -->
+    <svg id="Lager_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 363.8 363.8" width="20" height="20">
+        <path d="M125.4,0c1.1.7,1,1.5,1.2,2.6.4,3,.2,26.4-.8,27.3l-74.8-.7,86.1,86.4-20.7,20.5L29.2,50.9v74.9H0V12.4C0,8.1,7.3,0,11.6,0h113.8Z"/>
+        <path d="M363.8,125.8h-29.2V50.9l-87.1,85.3-20.7-20.5,86.1-86.4-73,.8-2.6-1.2V1.1l1.1-1.1h113.8c4.3,0,11.6,8.1,11.6,12.4v113.4Z"/>
+        <path d="M50.9,334.6h75.6v29.2H11.6c-4.3,0-11.6-7.9-11.6-12.4v-113.4h29.2v74.9l85.7-84.6.9-.6,21.2,20.5-86.1,86.5Z"/>
+        <path d="M334.6,312.9v-74.9h29.2v113.4c0,4.4-7.3,12.4-11.6,12.4h-114.9v-29.2h75.6l-86.1-86.5,20.7-20.5,1.4.6,85.7,84.6Z"/>
+    </svg>
+</button>
+
+
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.crop | or 'Crop Photo'" rv-if="model.context.buttons.crop" class="btn" data-cmd="crop-image"><i class="icon-crop"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.delete_bg | or 'Clear Background'" rv-if="model.context.buttons.removeBg" class="btn" data-cmd="delete"><i class="icon-trash-2"></i></button>
+                
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.cut_tip" rv-if="model.context.buttons.cut" class="btn wide-menus" data-cmd="cut"><i class="icon-scissors"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.delete_tip" rv-if="model.context.buttons.remove" class="btn wide-menus" data-cmd="delete"><i class="icon-trash-2"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.copy_tip" rv-if="model.context.buttons.clone" class="btn wide-menus" data-cmd="clone"><i class="icon-copy"></i></button>
+                <button rv-class-selected="model.act.styles" data-balloon-pos="down" rv-data-balloon="model.lang.copy_styles | or 'Copy Styles'" rv-if="model.context.buttons.copyStyles" class="btn wide-menus" data-cmd="copy-styles">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24"><path style="fill: currentColor" d="M566.566,228.5h-3v-1.62a1.435,1.435,0,0,0-1.409-1.38H547a1.488,1.488,0,0,0-1,.388,1.408,1.408,0,0,0-.433,1.006v5.334a1.4,1.4,0,0,0,1.391,1.379h15.178a1.53,1.53,0,0,0,1-.39,1.408,1.408,0,0,0,.431-1.005V230.5h2v3.976h-11a1,1,0,0,0-1,1v3.01h-.477a1.472,1.472,0,0,0-1.526,1.434l0,4.916a2.884,2.884,0,0,0,2.866,2.668q.061,0,.123,0a2.917,2.917,0,0,0,3.012-2.736l0-4.915a1.478,1.478,0,0,0-.523-1.006,1.421,1.421,0,0,0-.995-.358h-.479v-2.01h11a1,1,0,0,0,1-1V229.5A1,1,0,0,0,566.566,228.5Zm-5,3.107h-14V227.5h14Zm-6.942,13.9c-.041,0-.1,0-.14,0a.876.876,0,0,1-.921-.737l0-4.279,2.005.014,0,4.209A.884.884,0,0,1,554.624,245.5Z" transform="translate(-544.566 -224.496)"/></svg>
+                </button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.align_tip" rv-if="model.context.buttons.align" data-anchor="b" class="btn wide-menus" data-cmd="alignment"><i class="icon-p-align-top"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.depth_tip" rv-if="model.context.buttons.depth" data-anchor="b" class="btn wide-menus" data-cmd="depth"><i class="icon-layers"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.stroke_width_tip | or 'Stroke Width'" rv-if="model.context.buttons.strokeWidth" class="btn" data-cmd="stroke-width">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24"><g><line x2="15" transform="translate(4.5 3.5)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/><line x2="15" transform="translate(4.5 10.5)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3"/><line x2="15" transform="translate(4.5 18.5)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="4"/></g></svg>
+                </button>
+                
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.opacity_tip" rv-if="model.context.buttons.opacity" data-anchor="b" class="btn" data-cmd="opacity"><i class="icon-loader"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.transform_tip | or 'Transform'" rv-if="model.context.buttons.transform" data-anchor="b" class="btn" data-cmd="transform"><i class="icon-zap"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.group_tip | or 'Group Items'" rv-if="model.context.many" class="btn" data-cmd="group"><i class="icon-p-ungrouped"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.ungroup_tip | or 'UnGroup Items'" rv-if="model.context.buttons.ungroup" class="btn" data-cmd="ungroup"><i class="icon-p-grouped"></i></button>
+                <div rv-if="model.context.buttons.text" class="divider"></div>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.edit_text_tip" rv-if="model.context.buttons.textEditable" rv-class-disabled="model.context.many" rv-class-selected="model.context.textEditing" class="btn" data-cmd="edit"><i class="icon-edit-3"></i></button>
+                <button rv-if="model.context.buttons.text" rv-class-disabled="model.context.font.bold | negate" rv-class-selected="model.context.text.bold" class="btn" data-cmd="bold"><i class="icon-bold"></i></button>
+                <button rv-if="model.context.buttons.text" rv-class-disabled="model.context.font.italic | negate" rv-class-selected="model.context.text.italic" class="btn" data-cmd="italic"><i class="icon-italic"></i></button>
+                <button rv-if="model.context.buttons.text" rv-class-selected="model.context.text.underline" class="btn" data-cmd="underline"><i class="icon-underline"></i></button>
+                <button rv-if="model.context.buttons.text" class="btn" data-cmd="align"><i rv-class-icon-align-justify="model.context.text.align | eq 'justify'" rv-class-icon-align-left="model.context.text.align | eq 'left'" rv-class-icon-align-right="model.context.text.align | eq 'right'" rv-class-icon-align-center="model.context.text.align | eq 'center'"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.text_size_tip | or 'Text Size'" rv-if="model.context.buttons.text" class="btn" data-cmd="size"><i class="icon-p-text-resize"></i></button>
+                <button data-balloon-pos="down" rv-data-balloon="model.lang.toggle_textbox" rv-if="model.context.buttons.text" rv-class-disabled="model.context.many" class="btn" data-cmd="type"><i rv-class-icon-p-textbox="model.context.text.type | eq 'textbox'" rv-class-icon-p-itext="model.context.text.type | eq 'i-text'" rv-class-icon-p-arc1="model.context.text.type | eq 'curvedText'"></i></button>
+                <button rv-if="model.context.buttons.text" class="btn" data-cmd="more-text"><i class="icon-more-horizontal"></i></button>
+                <div rv-if="model.context.buttons.text" class="divider"></div>
+                <div rv-if="model.context.buttons.text" class="font-display" data-cmd="fonts"><div>{model.context.font.fontFamily}</div> <i class="icon-chevron-down"></i></div>
+            </section>
+        <!--FLOAT-->
+            <section rv-class-ctx="model.context.show" class="floats">
+                <!--SMART SIZES-->
+                <section rv-class-active="model.ss.show" rv-on-click="model.ss.click" data-module="smart-sizes" class="smart-sizes-app">
+                    <div rv-each-size="model.ss.sizes" rv-add_smart="size" rv-data-idx="%size%" data-cmd="smart-size" rv-class-selected="size.selected">
+                        <span>{size.title}</span>
+                    </div>
+                </section>
+                <!--COLOR TEMPLATE MODULE-->
+                <section rv-class-active="model.ct.show" data-module="module-color-template" rv-on-click="model.ct.click" class="color-template">
+                    <div rv-html="model.ct.description" class="desc"></div>
+                    <div class="main-div">
+                        <div rv-each-item="model.ct.items" rv-create_background_color="item" rv-data-id="item.id" data-cmd="load" class="round-item">
+                            <i rv-class-selected="item.selected" class="icon-check"></i>
+                        </div>
+                    </div>
+                </section>
+                <!--MODULE SWATCH-->
+                <section rv-class-active="model.sw.show" data-module="module-swatch" rv-on-click="model.sw.click" class="swatch">
+                    <div rv-html="model.sw.description" class="desc"></div>
+                    <div class="main-div">
+                        <div rv-each-item="model.sw.items" rv-create_swatch_color="item.colors" data-color_index="0" rv-data-id="item.id" rv-class-selected="item.selected" data-cmd="load" class="round-item swatch-item">
+                            <div rv-create_swatch_color="item.colors" data-color_index="1">
+                                <div rv-create_swatch_color="item.colors" data-color_index="2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="palettes-btn" rv-if="model.palettes.show" rv-on-click="model.palettes.click" data-cmd="show-palettes">
+                    <div rv-each-palette="model.palettes.cPalette" rv-bg_from_color_class="palette" ></div>
+                </section>
+                <!--MODULE CANVAS ADJUSTER-->
+                <section class="ca" rv-class-show="model.ca.show" rv-on-click="model.ca.click" rv-on-change="model.ca.change" data-module="module-canvas-adjuster">
+                    <div class="title">
+                        <i class="icon-maximize fs20"></i>
+                        <span>{model.ca.config.title | or 'Resize Canvas'}</span>
+                    </div>
+                    <div class="content">
+                        <div>
+<div rv-if="model.ca.showPreset" class="selector">
+  <select rv-value="model.ca.selectedIndex" data-cmd="sel">
+    <!-- Platshållartext -->
+    <option value="" selected disabled style="display:none;">Välj Format</option>
+
+    <!-- Dynamiska alternativ -->
+    <option rv-each-preset="model.ca.config.presets" rv-value="%preset%">
+      {preset.title} {preset.width} x {preset.height}
+    </option>
+  </select>
+</div>
+
+
+                            <div rv-if="model.ca.showCustom" class="custom">
+                                <div class="input">
+                                    <span>W </span>
+                                    <input rv-value="model.ca.width" type="number" min="1" data-cmd="width" >
+                                </div>
+                                <div rv-unless="model.ca.disableAspect" class="lock" data-balloon-pos="down" rv-data-balloon="model.ca.lang.lock | or 'Constrain dimensions'">
+                                    <input rv-checked="model.ca.config.lockAspectRatio" type="checkbox" id="ca-lock"/>
+                                    <label trg="checkbox" for="ca-lock"></label>
+                                </div>
+                                <div class="input">
+                                    <span>H </span>
+                                    <input rv-value="model.ca.height" type="number" min="1" data-cmd="height" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </section>
+    <!--PREVIEW CONTENT-->
+        <section rv-class-shown="model.act.previewMode" rv-hide="model.closeMode" class="preview" rv-on-click="model.click" data-module="preview">
+            <div class="previewToggle" rv-if="model.act.is3d">
+                <button class="btn" data-cmd="show2D">2D</button>
+                <button class="btn" data-cmd="show3D">3D</button>
+            </div>
+            <div>
+                <button class="btn" data-cmd="cancel"><i class="icon-x"></i> {model.lang.button_label_cancel}</button>
+                <div class="label">{model.lang.finish_message}</div>
+                <button class="btn stripe-hover high" data-cmd="ok"><i class="icon-check"></i> {model.lang.submit | or 'Godkänn'}</button>
+            </div>
+        </section>
+    <!--TOP MENUS-->
+        <section class="menus" rv-on-click="model.click" data-module="menus">
+  <button
+    type="button"
+    class="btn"
+    id="btn-close-img"
+    data-cmd="close"
+    data-balloon-pos="down"
+    rv-data-balloon="model.lang.close_tip"
+    aria-label="Stäng">
+    <img src="https://res.cloudinary.com/dmgmoisae/image/upload/v1759418713/salam_aleikom_321_utjngk.png" alt="Stäng" class="btn-img">
+  </button>
+
+             <button rv-unless="model.act.hidePrimaryMenus" rv-data-balloon="model.lang.qr_code" data-balloon-pos="down" type="button" class="btn" id="qr-button" data-balloon="QR-kod">
+    <i class="icon-p-qr-code"></i>
+  </button>
+            
+<button rv-unless="model.act.hidePrimaryMenus" data-balloon-pos="down" rv-data-balloon="model.lang.toggle_grid" class="btn grid-btn" data-cmd="grid"><i rv-class-icon-p-toggle-grid-on="model.act.grid | negate" rv-class-icon-p-toggle-grid="model.act.grid"></i></button>
+
+<button rv-unless="model.act.hidePrimaryMenus" data-balloon-pos="down" rv-data-balloon="model.lang.add_text" rv-class-selected="model.act.caretMode" class="btn" data-cmd="text"><i class="icon-type"></i></button>
+            
+            <button rv-unless="model.act.hidePrimaryMenus" data-balloon-pos="down" rv-data-balloon="model.lang.draw_tip | or 'Draw Shapes on Canvas'" rv-class-selected="model.act.drawingMode" class="btn hide-on-mobile" data-cmd="draw">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24"><path d="M316,386.5H302v4.262a8,8,0,1,0,9.738,9.738H316Zm-12,18a6,6,0,0,1-2-11.657V400.5h7.657A6.009,6.009,0,0,1,304,404.5Zm10-6H304v-10h10Z" transform="translate(-294 -384.5)" fill="currentColor"/></svg>
+            </button>
+            
+            <button rv-unless="model.act.hidePrimaryMenus" data-balloon-pos="down" rv-data-balloon="model.lang.paste_tip" rv-class-disabled="model.act.clipBoard | length_is_gt | negate" class="btn hide-on-mobile" data-cmd="paste"><i class="icon-clipboard"></i></button>
+            <button rv-unless="model.act.hidePrimaryMenus" data-balloon-pos="down" rv-data-balloon="model.lang.palette_mode" rv-show="model.showPaletteBtn" class="btn" data-cmd="toggle-palette-mode">
+                <i rv-class-icon-droplet="model.colorPaletteMode" rv-class-icon-p-toggle-pallete-copy="model.colorPaletteMode | negate"></i>
+            </button>
+            
+            <button data-balloon-pos="down" rv-data-balloon="model.lang.export_txa | or 'Export as TextArt'" rv-if="model.context.show | and model.context.buttons.export" class="btn" data-cmd="export"><i class="icon-package"></i></button>
+            
+            <!--These only come alive if the screen width is less than 1310px-->
+            <button rv-on-click="model.context.click" data-balloon-pos="down" rv-data-balloon="model.lang.cut_tip" rv-if="model.context.buttons.cut" class="btn wide-menus" data-cmd="cut"><i class="icon-scissors"></i></button>
+            <button rv-on-click="model.context.click" data-balloon-pos="down" rv-data-balloon="model.lang.delete_tip" rv-if="model.context.buttons.remove" class="btn wide-menus" data-cmd="delete"><i class="icon-trash-2"></i></button>
+            <button rv-on-click="model.context.click" data-balloon-pos="down" rv-data-balloon="model.lang.copy_tip" rv-if="model.context.buttons.clone" class="btn wide-menus" data-cmd="clone"><i class="icon-copy"></i></button>
+            <button rv-on-click="model.context.click" data-balloon-pos="down" rv-data-balloon="model.lang.align_tip" rv-if="model.context.buttons.align" data-anchor="b" class="btn wide-menus" data-cmd="alignment"><i class="icon-p-align-top"></i></button>
+            <button rv-on-click="model.context.click" data-balloon-pos="down" rv-data-balloon="model.lang.depth_tip" rv-if="model.context.buttons.depth" data-anchor="b" class="btn wide-menus" data-cmd="depth"><i class="icon-layers"></i></button>
+            
+            <div class="spacer"></div>
+            <span class="price">{model.price}</span>
+            <span class="price">{model.colors}</span>
+<button rv-if="model.pdfDownload" data-balloon-pos="down" rv-data-balloon="model.lang.pdf_download" class="btn primary multi" data-cmd="download"><i class="icon-download-cloud"></i></button>
+            <button rv-if="model.saveLater" data-balloon-pos="down" rv-data-balloon="model.lang.save_later" class="btn primary" data-cmd="save"><i class="icon-save"></i></button>
+            <button rv-unless="model.miniMode" data-balloon-pos="down" rv-data-balloon="model.lang.close_tip" class="btn primary" data-cmd="close"><i class="icon-x"></i></button>
+            <button rv-class-disabled="model.pages | negate_length" data-balloon-pos="down" rv-data-balloon="model.lang.preview_tip | or  'Preview your work'" class="btn primary stripe-hover high multi" data-cmd="submit"><i class="icon-check" rv-if="model.skipPreview"></i><i class="icon-eye" rv-unless="model.skipPreview"></i><span rv-if="model.skipPreview">{model.lang.submit | or 'Submit'}</span><span rv-unless="model.skipPreview">{model.lang.preview | or 'Preview'}</span></button>
+        </section>
+    <modules id="all-modules">
+        <!--QRCODE-->
+   <section data-module="qrcode">
+    <button rv-unless="model.act.hidePrimaryMenus" rv-data-balloon="model.lang.qr_code" data-balloon-pos="down" type="button" class="btn" id="qr-button"><i class="icon-p-qr-code"></i></button>
+    <div class="qrcode"><textarea id="qr-input" class="dialog-form-textarea" rows="5" placeholder="https://www.minhemsida.se/"></textarea></div>
+</section>
+        <!--FLASH-->
+        <div rv-class-unblind="model.show" rv-center="model.message" rv-class-small="model.isSmall" rv-class-is-type="model.isType" class="flex flash" data-module="flash">
+            <i id="flash-icon" class="icon-text_fields"></i>
+            <span rv-unless="model.isType" rv-show="model.message" rv-html="model.message"></span>
+            <textarea rv-if="model.isType" rv-on-input="model.input" rv-value="model.textVal"></textarea>
+        </div>
+        <!--IMAGE EDITOR-->
+        <div class="image-editor" data-module="image-editor" rv-on-click="model.click">
+            <div>
+                <div class="menus">
+                    <div data-cmd="pick" data-idx="0" rv-class-selected="model.selectedIndex | eq 0"><i class="icon-p-wand"></i></div>
+                    <div data-cmd="pick" data-idx="1" rv-class-selected="model.selectedIndex | eq 1"><i class="icon-sliders"></i></div>
+                    <div data-cmd="pick" data-idx="2" rv-class-selected="model.selectedIndex | eq 2" rv-if="model.ai"><img height="25" src="/rsc/icons/aiIcon.svg"></div>
+                </div>
+                <div class="panels">
+                    <div rv-class-selected="model.selectedIndex | eq 0" class="auto">
+                        <div data-cmd="preset" rv-class-selected="model.selectedPreset | eq %preset%" rv-data-idx="%preset%" rv-each-preset="model.presets">
+                            <div rv-set_bg_pos="%preset%"></div>
+                            <span class="label">{preset.title}</span>
+                        </div>
+                    </div>
+                    <div rv-on-input="model.input" rv-class-selected="model.selectedIndex | eq 1" class="manual">
+                        <div rv-each-filter="model.filters" class="sliders">
+                            <div class="label">{filter.title}</div>
+                            <div class="inpt">
+                                <div class="mid"></div>
+                                <input rv-class-multicolor="filter.id | eq 'HueRotation'" rv-data-idx="%filter%" rv-min="filter.min" rv-max="filter.max" rv-step="filter.step" type="range" rv-value="filter.value">
+                            </div>
+                            <div class="val">{filter.value | format_int filter.multiplier}</div>
+                        </div>
+                        <div class="btns">
+                            <button class="btn primary" data-cmd="reset"><i class="icon-rotate-ccw"></i><span>{model.lang.reset | or 'Återställ'}</span></button>
+                        </div>
+                    </div>
+                    <div rv-class-selected="model.selectedIndex | eq 2" class="auto" rv-if="model.ai">
+                        <div data-cmd="enhanceImage" class="aiTools">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="45px"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect width="48" height="48" fill="white" fill-opacity="0.01"></rect> <path d="M7.57932 35.4207C5.32303 32.1826 4 28.2458 4 24C4 12.9543 12.9543 4 24 4C35.0457 4 44 12.9543 44 24C44 35.0457 35.0457 44 24 44C19.7542 44 15.8174 42.677 12.5793 40.4207M7.57932 35.4207C8.93657 37.3685 10.6315 39.0634 12.5793 40.4207M7.57932 35.4207L16 27M12.5793 40.4207L21 32M16 27L20 23L25 28L21 32M16 27L21 32" stroke="#ffffff" stroke-width="2.7359999999999998" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M17 14H21M19 12V16" stroke="#ffffff" stroke-width="2.7359999999999998" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M28 17H34M31 14V20" stroke="#ffffff" stroke-width="2.7359999999999998" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M32 29H36M34 27V31" stroke="#ffffff" stroke-width="2.7359999999999998" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                            <span class="label">Förbättra</span>
+                        </div>
+                        <div data-cmd="upscaleImage" class="aiTools">
+                            <svg width="42px" height="45px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff" transform="rotate(90)" stroke-width="0.00048000000000000007"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>scale-expand-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <g> <path d="M13,23a2,2,0,0,0,2.3,2A2.1,2.1,0,0,0,17,22.9V19.8l6.5,6.6a2.1,2.1,0,0,0,2.8.1A1.8,1.8,0,0,0,27,25a2,2,0,0,0-.6-1.4L19.8,17h3.1A2.1,2.1,0,0,0,25,15.3,2,2,0,0,0,23,13H15a2,2,0,0,0-2,2Z"></path> <path d="M24,46A22,22,0,1,1,46,24a2,2,0,0,1-4,0A18,18,0,1,0,24,42a2,2,0,0,1,0,4Z"></path> <circle cx="36" cy="28" r="2"></circle> <circle cx="30.3" cy="30.3" r="2"></circle> <circle cx="28" cy="36" r="2"></circle> <circle cx="30.3" cy="41.7" r="2"></circle> <circle cx="36" cy="44" r="2"></circle> <circle cx="41.7" cy="41.7" r="2"></circle> <circle cx="44" cy="36" r="2"></circle> <circle cx="41.7" cy="30.3" r="2"></circle> </g> </g> </g> </g></svg>
+                            <span class="label">Skala Upp</span>
+                        </div>
+                        <div data-cmd="outpaint" class="aiTools">
+                            <svg width="40px" height="45px" fill="#fff" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve" stroke="#fff" stroke-width="0.00512"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M256,0C114.609,0,0,114.609,0,256s114.609,256,256,256s256-114.609,256-256S397.391,0,256,0z M256,472 c-119.297,0-216-96.703-216-216S136.703,40,256,40s216,96.703,216,216S375.297,472,256,472z"></path> <rect x="192" y="208" width="128" height="96"></rect> <polygon points="176,288.016 176,224 144,256 "></polygon> <polygon points="336,288.016 368.016,256 336,224 "></polygon> <polygon points="256.016,160.016 224,192 288.016,192 "></polygon> <polygon points="255.984,351.984 288,320 223.984,320 "></polygon> </g> </g></svg>
+                            <span class="label">Outpaint</span>
+                        </div>
+                        <div data-cmd="sReplace" class="aiTools">
+                            <svg width="50px" height="50px" viewBox="0 0 512 512" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">  <g id="Layer_1"></g> <g id="Layer_2"> <g> <g> <path class="st0" d="M307.81,212.18c-3.24,0-6.07-2.17-6.91-5.3l-4.82-17.88c-0.84-3.12-3.68-5.3-6.91-5.3h-21.46h-25.44H220.8 c-3.24,0-6.07,2.17-6.91,5.3l-4.82,17.88c-0.84,3.12-3.68,5.3-6.91,5.3H169.5c-3.96,0-7.16,3.21-7.16,7.16v101.78 c0,3.96,3.21,7.16,7.16,7.16h170.95c3.96,0,7.16-3.21,7.16-7.16V219.35c0-3.96-3.21-7.16-7.16-7.16H307.81z M282.33,264.94 c-0.86,13.64-11.93,24.71-25.58,25.58c-16.54,1.05-30.18-12.59-29.14-29.14c0.86-13.64,11.93-24.71,25.58-25.58 C269.74,234.76,283.38,248.4,282.33,264.94z"></path> </g> <g> <path class="st0" d="M82.95,272.41c3.82,0,7.53-1.53,10.23-4.23l21.23-21.23c4.74-4.74,6.4-11.92,3.73-18.06 c-2.73-6.29-8.88-8.95-18.84-7.57l-0.27,0.27c15.78-71.56,79.7-125.27,155.94-125.27c60.72,0,115.41,33.72,142.73,87.99 c3.58,7.11,12.24,9.97,19.34,6.39c7.11-3.58,9.97-12.24,6.39-19.34c-15.47-30.73-39.05-56.66-68.22-75.01 C325.23,77.47,290.57,67.5,254.98,67.5c-93,0-170.48,67.71-185.75,156.41c-5.38-4.77-13.59-5.18-19.13-0.44 c-6.3,5.39-6.75,14.88-1.13,20.84c0.23,0.24,5.69,6.03,11.41,11.93c3.41,3.51,6.2,6.33,8.3,8.38c4.23,4.13,7.88,7.69,14.07,7.78 C82.81,272.41,82.88,272.41,82.95,272.41z"></path> </g> <g> <path class="st0" d="M464.28,247.82l-26.5-26.5c-2.75-2.75-6.57-4.3-10.44-4.23c-2.33,0.03-4.29,0.56-6.07,1.42 c-0.26,0.12-0.51,0.26-0.76,0.4c-0.04,0.02-0.08,0.04-0.12,0.06c-0.59,0.33-1.16,0.68-1.69,1.08c-1.88,1.34-3.6,3.03-5.44,4.82 c-2.1,2.05-4.89,4.87-8.3,8.38c-5.72,5.9-11.18,11.68-11.41,11.93c-5.46,5.79-5.19,14.91,0.6,20.36 c5.75,5.42,14.77,5.18,20.24-0.48c-4.72,83.85-74.42,150.62-159.43,150.62c-70.52,0-131.86-45.23-152.62-112.55 c-2.35-7.6-10.41-11.86-18.01-9.52c-7.6,2.34-11.86,10.41-9.52,18.01c11.62,37.68,35.48,71.52,67.19,95.28 c32.8,24.59,71.86,37.58,112.96,37.58c100.11,0,182.23-78.45,188.14-177.1l0.79,0.79c2.81,2.81,6.5,4.22,10.18,4.22 c3.69,0,7.37-1.41,10.18-4.22C469.91,262.57,469.91,253.45,464.28,247.82z"></path> </g> </g> </g> </g></svg>
+                            <span class="label">Smart Replace</span>
+                        </div>
+                        <div data-cmd="show-structure" class="aiTools">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="52px" viewBox="0 0 24 24" fill="none" stroke="#ffffff">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier"> <path d="M10 7L10 17L7 13.5625" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M14 17L14 7L17 10.4375" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"></path> </g>
+                            </svg>                 
+                            <span class="label">Struktur</span>
+                        </div>
+                        <div data-cmd="show-sketch" class="aiTools">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="45px" height="52px" viewBox="0 0 24 24" fill="none">]
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>\
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>]
+                                <g id="SVGRepo_iconCarrier"> <path d="M17.9227 3.52798C18.2607 3.18992 18.7193 3 19.1973 3C19.6754 3 20.134 3.18992 20.472 3.52798C20.8101 3.86605 21 4.32456 21 4.80265C21 5.28075 20.8101 5.73926 20.472 6.07732L12.3991 14.1502L9 15L9.84978 11.6009L17.9227 3.52798Z" stroke="#ffffff" stroke-width="1.464" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M16 6L18 8" stroke="#ffffff" stroke-width="1.464" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12.5 3H12C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12V11.5" stroke="#ffffff" stroke-width="1.464" stroke-linecap="round"></path> </g>
+                            </svg>                         
+                            <span class="label">Skecth till bild</span>
+                        </div>
+                        <div class="input-group sReplace" rv-if="model.showReplace">
+                            <input autocomplete="off" rv-value="model.searchPrompt" placeholder="Find">
+                            <textarea id="text_prompt" placeholder="Replace" rv-value="model.prompt"></textarea>
+                            <button class="btn primary" rv-class-disabled="model.replacing" data-cmd="replace" id="replace-btn"><span rv-hide="model.replacing">Smart Replace</span><span rv-show="model.replacing">Replacing</span><i rv-class-icon-loader="model.replacing" rv-class-anim-rotate="model.replacing"></i></button>
+                        </div>
+                        <div class="input-group sReplace" rv-if="model.showStructure">
+                            <textarea id="text_prompt" placeholder="Prompt" rv-value="model.prompt"></textarea>
+                            <button class="btn primary" rv-class-disabled="model.generating" data-cmd="structure" id="replace-btn"><span rv-hide="model.generating">Generate</span><span rv-show="model.generating">Generating</span><i rv-class-icon-loader="model.generating" rv-class-anim-rotate="model.generating"></i></button>
+                        </div>
+                        <div class="input-group sReplace" rv-if="model.showSketch">
+                            <textarea id="text_prompt" placeholder="Prompt" rv-value="model.prompt"></textarea>
+                            <button class="btn primary" rv-class-disabled="model.generating" data-cmd="sketch" id="replace-btn"><span rv-hide="model.generating">Generate</span><span rv-show="model.generating">Generating</span><i rv-class-icon-loader="model.generating" rv-class-anim-rotate="model.generating"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--MORE TEXT-->
+        <div class="more-text" data-module="more-text" rv-on-input="model.input" rv-on-click="model.click">
+            <div class="slide" rv-unless="model.curve"><i class="icon-p-line-height"></i> <input data-cmd="lineSpacing" min="-5" max=100 step="1" type="range" rv-value="model.lineSpacing"></div>
+            <div class="slide" rv-unless="model.curve"><i class="icon-p-line-spacing"></i> <input data-cmd="charSpacing" min="-100" max=1000 step="5" type="range" rv-value="model.charSpacing"></div>
+            <div class="slide" rv-if="model.curve"><i class="icon-disc"></i> <input data-cmd="radius" min=50 max=1000 step="1" type="range" rv-value="model.radius"></div>
+            <div class="slide" rv-if="model.curve"><i class="icon-p-arc2"></i> <input data-cmd="spacing" min=0 max=500 step="1" type="range" rv-value="model.spacing"></div>
+            <div class="anchors" rv-if="model.curve">
+                <button rv-class-selected="model.reverse | negate" class="btn" data-cmd="unreverse"><i class="icon-p-arc1"></i></button>
+                <button rv-class-selected="model.reverse" class="btn" data-cmd="reverse"><i class="icon-p-arc1 rot-180"></i></button>
+            </div>
+            <div class="anchors" rv-unless="model.curve">
+                <button rv-class-selected="model.anchor | eq 't'" class="btn" data-cmd="t"><i class="icon-p-anchor-top"></i></button>
+                <button rv-class-selected="model.anchor | eq 'm'" class="btn" data-cmd="m"><i class="icon-p-anchor-center"></i></button>
+                <button rv-class-selected="model.anchor | eq 'b'" class="btn" data-cmd="b"><i class="icon-p-anchor-bottom"></i></button>
+            </div>
+            <div class="anchors" rv-unless="model.curve">
+                <button class="btn" data-cmd="case">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22.914" height="16.629" viewBox="0 0 22.914 16.629">
+                        <g fill="currentColor" transform="translate(-439.71 -21.67)">
+                            <path d="M-5.59,0l1.273-3.289H1.8L3.072,0H5.29L-.883-16.33h-.694L-7.808,0Zm4.341-11.73L1.066-5.29H-3.584Z" transform="translate(447.518 38)"/>
+                            <path d="M4.623-5.681C4.646-8.487,2.806-10.35-.161-10.4a9.928,9.928,0,0,0-3.473.667l.552,1.7A6.553,6.553,0,0,1-.414-8.579,2.736,2.736,0,0,1,2.438-5.75v.506A5.383,5.383,0,0,0-1.035-6.486c-2.323,0-3.956,1.357-3.956,3.45C-4.991-1.173-3.473.3-1.15.3A4.539,4.539,0,0,0,2.691-1.357L3.243,0H4.6ZM2.438-3.473C2.254-2.346.759-1.38-.575-1.38A1.945,1.945,0,0,1-2.714-3.151,1.967,1.967,0,0,1-.529-4.945,4.251,4.251,0,0,1,2.438-3.726Z" transform="translate(458 38)"/>
+                        </g>
+                    </svg>
+                </button>
+                <button class="btn" data-cmd="superscript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-superscript" height="23" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M5 7l8 10m-8 0l8 -10"></path>
+                       <path d="M21 11h-4l3.5 -4a1.73 1.73 0 0 0 -3.5 -2"></path>
+                    </svg>
+                </button>
+                <button class="btn" data-cmd="subscript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-subscript" height="23" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M5 7l8 10m-8 0l8 -10"></path>
+                       <path d="M21 20h-4l3.5 -4a1.73 1.73 0 0 0 -3.5 -2"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!--COLORS-->
+        <div class="is-scroll colors" data-module="colors" rv-on-mousedown="model.down" rv-on-dblclick="model.dblclick" rv-on-click="model.click" rv-on-change="model.change">
+            <div>
+                <div rv-unless="model.hideCustom" rv-class-active="model.showPicker" class="user-color mb10">
+                    <div rv-class-shown="model.showPicker" class="picker">
+                        <div id="farb"></div>
+                        <div class="stops" id="stops" data-cmd="stops" rv-if="model.currentColor.type | neq 'solid'">
+                            <div rv-class-selected="model.cIndex | eq %position%" class="stop" rv-data-pos="%position%" data-cmd="stop" rv-set_stop="position" rv-each-position="model.currentColor.positions"></div>
+                        </div>
+                    </div>
+                    <div rv-class-m10="model.showPicker" class="cols right">
+                        <div data-balloon-pos="down" rv-data-balloon="model.lang.rotation | or 'Fill Rotation'" rv-if="model.currentColor.type | neq 'solid' | and model.showPicker">
+                            <input type="number" max=359 min=0 rv-value="model.currentColor.rotation" data-cmd="rotation" />
+                        </div>
+                        <div data-balloon-pos="up" rv-data-balloon="model.lang.fill_type | or 'Fill Type'" rv-if="model.showPicker" class="select">
+                            <select rv-if="model.enableGradient" data-cmd="type" rv-value="model.currentColor.type">
+                                <option value="solid">{model.lang.solid | or 'Solid'}</option>
+                                <option value="linear">{model.lang.linear | or 'Linear'}</option>
+                            </select>
+                        </div>
+                        <div rv-if="model.showMode" class="select" rv-if="model.showPicker | negate">
+                            <select data-cmd="mode" rv-value="model.fillMode">
+                                <option value="fill">{model.lang.fill | or 'Fill'}</option>
+                                <option value="stroke">{model.lang.stroke | or 'Stroke'}</option>
+                            </select>
+                        </div>
+                        <div data-balloon-pos="down" rv-data-balloon="model.lang.cancel | or 'Cancel'" rv-if="model.showPicker" data-cmd="cancel" class="add color"><i class="icon-x"></i></div>
+                        <div data-balloon-pos="down" rv-data-balloon="model.lang.no_fill_tip | or 'No Fill'" rv-if="model.showPicker | negate" data-cmd="no-fill" class="add color"><i class="icon-p-toggle-pallete-copy"></i></div>
+                        <div data-balloon-pos="down" rv-data-balloon="model.lang.save_color_tip | or 'Save New Color'" rv-if="model.showPicker" data-cmd="save" class="add color"><i class="icon-save"></i></div>
+                        <div data-balloon-pos="down" rv-data-balloon="model.lang.add_color_tip | or 'Add New Color'" rv-if="model.showPicker | negate" data-cmd="new" class="add color"><i class="icon-plus"></i></div>
+                    </div>
+                </div>
+                <div class="collections">
+                    <div rv-each-collection="model.colors" class="collection">
+                        <div class="title"><div>{collection.title}</div><hr/></div>
+                        <div class="cols" rv-data-cat="%collection%">
+                            <div rv-class-selected="model.currentColor.hash | eq color.hash" data-balloon-pos="up" rv-data-balloon="color.label" data-cmd="col" rv-data-idx="%color%" rv-each-color="collection.colors" rv-colordata_bg_colors="color" class="color">
+                                <i rv-class-shown="model.currentColor.hash | eq color.hash" class="icon-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--NOTIFY-->
+        <div rv-class-notify-show="model.show" class="flex notify" data-module="notify">
+            <div rv-html="model.icon"></div>
+            <span rv-text="model.message"></span>
+        </div>
+        <!--ALIGNMENT-->
+        <section rv-on-click="model.click" data-module="alignment" class="alignment">
+            <button class="btn" data-cmd="alignment-left"><i class="icon-p-align-left"></i></button>
+            <button class="btn" data-cmd="alignment-top"><i class="icon-p-align-top"></i></button>
+            <button class="btn" data-cmd="alignment-center"><i class="icon-p-align-center"></i></button>
+            <button class="btn" data-cmd="alignment-middle"><i class="icon-p-align-center-1"></i></button>
+            <button class="btn" data-cmd="alignment-bottom"><i class="icon-p-align-bottom"></i></button>
+            <button class="btn" data-cmd="alignment-right"><i class="icon-p-align-right"></i></button>
+        </section>
+        <!--DEPTH-->
+        <section rv-on-click="model.click" data-module="depth" class="depth">
+            <button class="btn" data-cmd="stack-bottom"><i class="icon-chevrons-down"></i></button>
+            <button class="btn" data-cmd="stack-down"><i class="icon-chevron-down"></i></button>
+            <button class="btn" data-cmd="stack-up"><i class="icon-chevron-up"></i></button>
+            <button class="btn" data-cmd="stack-top"><i class="icon-chevrons-up"></i></button>
+        </section>
+        <!--FONT SIZE-->
+        <section rv-on-input="model.input" data-module="size" class="size">
+            <input rv-min="model.min" rv-max="model.max" rv-step="model.step" type="range" rv-value="model.value">
+        </section>
+        <!--FONT LIST-->
+        <section rv-on-click="model.click" rv-on-input="model.input" data-module="fonts" class="fonts">
+            <div class="flist is-scroll">
+                <div class="input">
+                    <input rv-placeholder="model.sFontsPlaceholder" data-cmd="searchFonts" id="font-search" placeholder="Type to search fonts...">
+                </div>
+                <div rv-class-is-user="font.isUser" rv-each-font="model.fonts" rv-data-idx="%font%" rv-class-selected="font.selected" rv-set_font="font">{font.fontFamily}</div>
+            </div>
+            <div rv-unless="model.disableGoogle" class="add-own">
+                <button class="btn primary" data-cmd="add"><i class="icon-plus"></i> <span rv-text="model.lang.addFont | or 'Add More Fonts'"></span></button>
+            </div>
+        </section>
+        <!--GOOGLE FONT LIST-->
+        <section class="fonts-list" rv-on-click="model.click" data-module="fonts-list" class="fonts-list">
+            <div class="btns">
+                <button data-cmd="done" class="btn rounded on-light multi" ><i class="icon-check"></i> <span>Add Selected</span></button>
+                <button data-cmd="cancel" class="btn ml10 rounded on-light multi" ><i class="icon-x"></i> <span>Cancel</span></button>
+            </div>
+            <div class="select">
+                <select rv-on-change="model.change" rv-value="model.selected" data-cmd="cat"><option rv-value="%cat%" rv-each-cat="model.categories">{cat.title}</option></select>
+            </div>
+            <div class="list is-scroll">
+                <div rv-each-font="model.fonts" rv-class-selected="font.selected" data-cmd="toggle" rv-data-val="%font%">
+                    <div>
+                        <div rv-class-disabled="font.bold | negate" class="bold">B</div>
+                        <div rv-class-disabled="font.italic | negate" class="italic">I</div>
+                    </div>
+                    <div>
+                        <div rv-set_font_family="font.fontFamily">Grumpy wizards make toxic brew for the evil Queen and Jack.</div>
+                        <div><span><i class="icon-chevron-right"></i> {font.fontFamily}</span> <span>Subsets: </span> <span>{font.subsets | join ', '}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination">
+                <div rv-class-disabled="model.page | string_equal 0" data-cmd="prev"><i class="icon-chevron-left"></i></div>
+                <div rv-class-selected="model.page | string_equal %page%" rv-each-page="model.pages" data-cmd="page" rv-data-val="%page%">{page}</div>
+                <div rv-class-disabled="model.page | is_gte_length_of model.pages" data-cmd="next"><i class="icon-chevron-right"></i></div>
+            </div>
+        </section>
+        <!--OPACITY-->
+        <section rv-on-input="model.input" data-module="opacity" class="opacity">
+            <input min=0 max=1 step="0.1" type="range" rv-value="model.value">
+        </section>
+        <!--STROKE-WIDTH-->
+        <section rv-on-input="model.input" data-module="stroke-width" class="stroke-width">
+            <input min=0 max=10 step="0.1" type="range" rv-value="model.value">
+        </section>
+        <!--TRANSFORM-->
+        <section data-module="transform" rv-on-click="model.click" rv-on-input="model.input" class="transform">
+            <div class="slide"><i class="icon-rotate-cw"></i> <input data-cmd="rotate" min=0 max=360 step=2 type="range" rv-value="model.rotation"></div>
+          	<div class="slide"><i class="icon-p-skewx"></i> <input data-cmd="skewx" min=-60 max=60 step=2 type="range" rv-value="model.skewX"></div>
+          	<div class="slide"><i class="icon-p-skewy"></i> <input data-cmd="skewy" min=-60 max=60 step=2 type="range" rv-value="model.skewY"></div>
+          	<div class="anchors" rv-if="model.showFlip">
+                <button class="btn" data-cmd="flipX"><i class="icon-p-sort"></i></button>
+                <button class="btn" data-cmd="flipY"><i class="icon-p-sort rot-90"></i></button>
+            </div>
+        </section>
+        <!--DIALOG-->
+        <section rv-show="model.show" data-module="dialog" class="dialog">
+            <div rv-text="model.title"></div>
+            <i id="dialog-icon" class="icon-info mouse-disabled"></i>
+            <div rv-html="model.message" class="content is-scroll" id="dialog-content"></div>
+            <div rv-hide="model.noButtons" class="dialog-buttons">
+<button rv-hide="model.noCancelButton" data-cmd="cancel" class="btn primary small">
+  <span rv-text="model.cancel | or 'Avbryt'"></span>
+</button>                <button rv-hide="model.noOkButton" data-cmd="ok" class="btn primary small">
+  <span rv-text="model.okay | or 'Fortsätt'"></span>
+</button>
+            </div>
+            <button  data-cmd="close" class="btn close-btn" ><i class="icon-x"></i></button>
+        </section>
+        <!--POP UP-->
+        <div data-module="popup" class="popup"></div>
+        
+        <!--MODULE PAGE LOADER-->
+        <section rv-class-selected="model.selected" data-module="module-page-loader" rv-on-click="model.click" class="page-loader">
+            <div rv-html="model.description" class="desc"></div>
+            <div class="pl-pages-div is-scroll">
+                <div class="pl-cont">
+                    <div rv-each-page="model.pages" rv-create_background="page" data-cmd="add" rv-data-idx="%page%" rv-class-no-swap="model.swapPage | negate" class="pl-page">
+                        <div class="pl-lbl pl-lbl-top"><span>{page.pageData.title}</span></div>
+                        <div class="pl-spacer"></div>
+                        <div rv-if="model.swapPage" rv-data-idx="%page%" data-cmd="pl-swap" class="pl-lbl pl-swap"><i class="icon-share icon-x18"></i> <span>{model.lang.swap}</span></div>
+                        <div rv-unless="model.limitReached" data-cmd="add" rv-data-idx="%page%" class="pl-lbl"><i class="icon-plus"></i> <span>{model.lang.add}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-button">
+                <button  data-cmd="sort" class="btn primary"><i class="icon-trash-2"></i> <span>{model.lang.delete}</span></button>
+            </div>
+        </section>
+        <!--MODULE DESIGN SELECTOR-->
+        <section rv-class-selected="model.selected" data-module="module-design-selector" rv-on-click="model.click" class="design-selector">
+            <div rv-html="model.description" class="desc"></div>
+            <div rv-if="model.search">
+                <div rv-class-disabled="model.searching" class="select-group input-group">
+                    <div class="input">
+                        <input autocomplete="off" rv-on-keyup="model.input" rv-value="model.keywords" rv-placeholder="model.lang.design_search" data-cmd="input_changed">
+                    </div>
+                    <button rv-class-disabled="model.searchStop"  class="button" data-cmd="search" ><i rv-class-icon-spinner9="model.searching" rv-class-icon-search2="model.searching | negate" class="icon-x2"></i></button>
+                </div>
+            </div>
+            <div class="is-scroll" id="ds-main-div">
+                <div rv-each-design="model.designs" rv-data-idx="%design%" rv-class-inline="model.prevAsThumb | negate" rv-create_background="design" rv-data-id="design.id" rv-class-selected="design.selected" rv-data-pages="design.pages" data-cmd="load" class="ds-item">
+                    <div>{design.title}</div>
+                </div>
+               
+            </div>
+            <div id="ds-dialog" class="ds-dialog">
+                <button data-cmd="cancel"  class="btn primary"><i class="icon-cross"></i> {model.lang.keep | or 'Keep Designing'}</button>
+                <button data-cmd="use"  class="btn primary"><i class="icon-checkmark"></i> {model.lang.use_new | or 'Use New Design'}</button>
+            </div>
+        </section>
+        <!--MODULE DATA FORM-->
+        <section rv-class-selected="model.selected" data-module="module-data-form" rv-on-input="model.input" rv-on-change="model.input" rv-on-click="model.click" class="data-form">
+            <div rv-html="model.description" class="desc"></div>
+            <div class="df-page-parent is-scroll">
+                <div rv-each-page="model.pages" rv-show="page.selected">
+                    <div rv-class-stripe-anim="item.selected" rv-class-selected="item.selected" class="df-item" rv-each-item="page.items">
+                        <div rv-text="item.title"></div>
+                        <div class="df-input">
+                            <textarea rv-data-chain="item.chain" rv-text_mask="item.textMask" rv-maxlength="item.textLimit" rv-data-type="item.type" rv-data-df_reference="item.reference" rv-if="item | is_anytext" rv-autosize="item.text" rows="1" df-txtarea="true">{item.text}</textarea>
+                            <div class="remove" rv-data-ref="item.reference" data-cmd="clear-text" rv-if="item | is_anytext">
+                                <i class="icon-x"></i>
+                            </div>
+                            <select rv-data-ref="item.reference" rv-data-type="item.type" rv-data-df_reference="item.reference" data-cmd="options" rv-if="item.options | list_to_array | is_array" rv-data-chain="item.chain">
+                                <option rv-each-opt="item.options | list_to_array" rv-value="opt">{opt}</option>
+                            </select>
+                            <div rv-data-ref="item.reference" data-cmd="upload" rv-create_background="item" rv-if="item | is_image_shape" class="item-inner upload" rv-data-chain="item.chain">
+                                <i class="icon-upload"></i>
+                                <div class="remove" rv-data-ref="item.reference" data-cmd="remove-upload" rv-if="item | is_image">
+                                    <i class="icon-x"></i>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--MODULE PAGE COUNT-->
+        <div data-module="module-page-count"></div>
+        <!--MODULE REMIX-->
+        <div data-balloon-pos="left" rv-data-balloon="model.lang.title | or 'Remix'" rv-class-shown="model.show" data-module="module-remix" rv-on-click="model.click" class="remix stripe-hover">
+            <button class="btn primary" data-cmd="remix"><i class="icon-aperture"></i></button>
+        </div>
+        <!--PALETTES-->
+        <section rv-on-click="model.click" data-module="palettes" id="palettes" class="palettes">
+            <div rv-data-idx="%palette%" data-cmd="palette" rv-each-palette="model.palettes" rv-class-selected="palette.selected">
+                <i rv-show="palette.selected" class="icon-check-circle"></i>
+                <i rv-show="palette.selected | negate" class="icon-circle faded"></i>
+                <span>{palette.title}</span>
+                <div class="cls"><div rv-each-color="palette.colors" rv-bg_from_color_class="color"></div></div>
+            </div>
+        </section>
+        <!--RIGHT CLICK MENUS-->
+        <section rv-class-shown="model.show" rv-position_rm="model.position" rv-on-click="model.click" data-module="rightmenus" class="rightmenus">
+            <div>
+                <button rv-if="model.mode |eq 'item'" class="btn" data-cmd="copy"><i class="icon-copy"></i> <span>{model.lang.copy | or 'Kopiera'}</span></button>
+                <button rv-if="model.mode |eq 'item'" class="btn" data-cmd="cut"><i class="icon-scissors"></i> <span>{model.lang.cut | or 'Beskär'}</span></button>
+                <button rv-if="model.mode |eq 'item'" class="btn" data-cmd="delete"><i class="icon-trash-2"></i> <span>{model.lang.delete | or 'Ta bort'}</span></button>
+                
+                <button rv-if="model.mode |eq 'bg'" rv-class-disabled="model.act.clipBoard | length_is_gt | negate" class="btn" data-cmd="paste-here"><i class="icon-clipboard"></i> <span>{model.lang.paste | or 'Klistra in'}</span></button>
+                <button rv-if="model.mode |eq 'bg'" class="btn" data-cmd="bg"><i class="icon-p-background"></i> <span>{model.lang.bg | or 'Byt Bakgrund'}</span></button>
+            </div>
+        </section>
+        <!--DOWNLOAD-->
+        <section rv-on-click="model.click" data-module="download" class="download">
+            <div>
+                <div rv-if="model.downloadOptions" class="fieldset" rv-on-change="model.change">
+                    <label><input type="radio" name="download-type" id="dwnl-pdf" checked value="pdf"><span>PDF</span></label>
+                    <label><input type="radio" name="download-type" id="dwnl-png" value="png"><span>PNG</span></label>
+                    <label><input type="radio" name="download-type" id="dwnl-jpeg" value="jpeg"><span>JPEG</span></label>
+                </div>
+                <button class="btn primary" data-cmd="pdf">
+                    <i class="icon-file"></i> <span>{model.lang.download | or 'Ladda ned'} {model.downloadType | toucase}</span>
+                </button>
+            </div>
+        </section>
+        <!--INTRO FORM-->
+        <section data-module="intro-form" class="intro-form">
+            <section rv-each-page="model.pages">
+                <div class="title"><i class="icon-file-minus"></i> <span>{page.title}</span></div>
+                <div class="item" rv-each-item="page.items">
+                    <input rv-if="item | is_text" rv-placeholder="item.title" rv-text_mask="item.textMask" rv-maxlength="item.textLimit" class="item-inner intro-form-input" rv-data-chain="item.chain" rv-data-if_reference="item.reference" />
+                    <textarea rv-if="item | is_textarea" rv-text_mask="item.textMask" rv-maxlength="item.textLimit" rv-placeholder="item.title" class="item-inner intro-form-input" rv-data-chain="item.chain" rv-data-if_reference="item.reference" rows="3" ></textarea>
+                    <div rv-create_background="item" rv-if="item | is_image" class="item-inner upload" rv-data-if_reference_preview="item.reference" ><input type="file" name="file" rv-data-if_reference_upload="item.reference" rv-data-chain="item.chain" class="upload-input"><i rv-data-if_reference_icon="item.reference" class="icon-upload"></i></div>
+                </div>
+            </section>
+        </section>
+        <!-- PHONE UPLOADER -->
+        <section data-module="phone-uploader" class="phone-uploader">
+            <div class="progress">
+                <div class="line stripe-anim" rv-set_width_percent="model.stage" data-factor="20"></div>
+                <div class="spot sett"></div>
+                <div class="spot" rv-class-sett="model.stage | is_gteq '2'"></div>
+                <div class="spot" rv-class-sett="model.stage | is_gteq '3'"></div>
+                <div class="spot" rv-class-sett="model.stage | is_gteq '4'"></div>
+            </div>
+            <div class="msg">{model.message}</div>
+            <div class="graphic" rv-html="model.graphic"></div>
+        </section>
+        <!--MODULE PHOTO-PRINT 1-->
+        <section data-module=module-photo rv-on-click=model.click class=module-photo>
+            <div class=photo-form id=photo-form>
+                <div class="input" rv-hide="model.config.hideQty"><input id=photo-qty min=1 rv-placeholder=model.lang.quantity step=1 type=number></div>
+                <div class="selector mt10 mb10">
+                    <select id=photo-size>
+                        <option rv-each-size=model.config.sizes>{size.width} x {size.height} {model.config.unit}</option>
+                    </select>
+                </div>
+                <div class="selector">
+                    <select id=photo-paper>
+                        <option rv-each-paper=model.config.papers rv-value="paper.title">{paper.title}</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+        <!--MODULE PHOTO PRINTS 2-->
+        <section rv-class-selected="model.selected" data-module=module-photo-2 rv-on-click="model.click" rv-on-input="model.input" rv-on-change="model.input">
+            <div class="photo-prints is-scroll" rv-if="model.instance">
+                <div class="pp-section sizes">
+                    <div class="label">Size</div>
+					<div class="m-size" rv-class-selected="size.selected" rv-class-divider="size.divider" data-cmd="size" rv-data-idx="%size%" rv-each-size="model.instance.sizes">
+                        <span>{size.title}</span>
+                        <div class="btns">
+                            <button rv-data-idx="%size%" data-cmd=minus><i class="icon-minus"></i></button>
+                            <span>{size.quantity | or '0'}</span>
+                            <button rv-data-idx="%size%" data-cmd=plus><i class="icon-plus"></i></button>
+                        </div>
+                    </div>
+				</div>
+                <div class="pp-section mobile-check" rv-if="model.isMobile">
+                	<button class="btn" data-cmd="close"><i class="icon-check"></i></button>
+                </div>
+                <div class="pp-section" rv-if="model.instance" rv-hide="model.isMobile">
+					<div class="label">Photo</div>
+                    <div class="photo-tools mt5">
+                        <button data-balloon-pos="down" rv-data-balloon="model.lang.rotate | or 'Rotate'" data-anchor="b" class="btn" data-cmd="rotate"><i class="icon-rotate-cw"></i></button>
+                    	<button data-balloon-pos="down" rv-data-balloon="model.lang.drag | or 'Drag Photo'" data-anchor="b" class="btn" data-cmd="drag"><i class="icon-move"></i></button>
+                		<button data-balloon-pos="down" rv-data-balloon="model.lang.filters | or 'Filters'" data-anchor="b" class="btn" data-cmd="filters"><i class="icon-p-wand"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--MODULE PHOTO PRINTS 3-->
+        <section rv-class-selected="model.selected" data-module=module-photo-3 rv-on-click="model.click" rv-on-input="model.input" rv-on-change="model.input">
+            <div class="photo-prints is-scroll" rv-if="model.page">
+                <div class="pp-section sizes">
+                    <div class="label">Size</div>
+					<div class="m-size" rv-class-selected="size.selected" rv-class-divider="size.divider" data-cmd="size" rv-data-idx="%size%" rv-each-size="model.set">
+                        <span>{size.title}</span>
+                    </div>
+				</div>
+                <div class="pp-section" rv-if="model.photo">
+					<div class="label">Photo</div>
+                    <div class="photo-tools mt5">
+                    	<button data-balloon-pos="down" rv-data-balloon="model.lang.drag | or 'Drag Photo'" data-anchor="b" class="btn" data-cmd="drag"><i class="icon-move"></i></button>
+                		<button data-balloon-pos="down" rv-data-balloon="model.lang.filters | or 'Filters'" data-anchor="b" class="btn" data-cmd="filters"><i class="icon-p-wand"></i></button>
+                    </div>
+                </div>
+                <div class="pp-section" rv-if="model.text">
+					<div class="label">Caption</div>
+					<div class="input">
+						<input rv-value="model.text.text" data-cmd="update-label" />
+					</div>
+                    <div class="font-display" data-cmd="fonts"><div>{model.text.fontFamily}</div> <i class="icon-chevron-down"></i></div>
+                    <div class=m-colors>
+                    	<div data-balloon-pos="up" rv-data-balloon="color.label" data-cmd="col" rv-data-idx="%color%" rv-each-color="model.colors" rv-colordata_bg="color" class="color"></div>
+                    </div>
+				</div>
+                <div class="pp-section">
+					<div class="label">Background</div>
+                    <div class=bg-images>
+                        <div class="thumb" rv-data-id="item.id" loading="lazy" rv-hide="item.hide" data-cmd="image-click" rv-class-contain="item.isImage | negate" rv-each-item="model.backgrounds" rv-create_background="item.thumbnail"></div>
+                    </div>
+					<div class=m-colors>
+                    	<div data-balloon-pos="up" data-bg="true" rv-data-balloon="color.label" data-cmd="col" rv-data-idx="%color%" rv-each-color="model.colors" rv-colordata_bg="color" class="color"></div>
+                    </div>
+				</div>
+            </div>
+        </section>
+        <!-- SELECT PHOTO SOURCE-->
+        <section id="module-photos-entry" class="photos-entry">
+            <div class="msg">
+                <div class="mb10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="80.854" height="79" viewBox="0 0 80.854 79">
+                        <g transform="translate(-979.5 -504.5)">
+                            <g transform="translate(990.044 507)">
+                                <rect width="67" height="67" rx="10" transform="translate(-0.044 0)" stroke-width="5" stroke="#8d9eac" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <circle cx="5.5" cy="5.5" r="5.5" transform="translate(14.956 15)" stroke-width="5" stroke="#8d9eac" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <path d="M64.356,28.549,45.807,10,5,50.807" transform="translate(2.42 15.968)" fill="none" stroke="#8d9eac" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+                            </g>
+                            <g transform="translate(981.863 547.906)">
+                                <circle cx="16.5" cy="16.5" r="16.5" transform="translate(0.137 0.094)" stroke-width="5" stroke="#8d9eac" stroke-linecap="round" stroke-linejoin="round" fill="#fff"/>
+                                <line y2="13.873" transform="translate(16.431 9.489)" fill="none" stroke="#8d9eac" stroke-linecap="round" stroke-width="5"/>
+                                <line y2="13.873" transform="translate(23.367 16.425) rotate(90)" fill="none" stroke="#8d9eac" stroke-linecap="round" stroke-width="5"/>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <span rv-if=model.intro_mode>{model.lang.intro}</span>
+                <span rv-unless=model.intro_mode>{model.lang.welcome}</span>
+            </div>
+            <div rv-if=model.intro_mode class="flex mt20 btns">
+                <button class="btn on-light rounded multi faded large-pad hide-on-mobile" data-cmd=uploads>
+                    <i class="icon-upload"></i>
+                    <span>{model.lang.btn_upload}</span>
+                </button>
+                <button class="btn on-light rounded multi faded large-pad" data-cmd=phone>
+                    <i class="icon-smartphone"></i>
+                    <span>{model.lang.btn_phone | or 'Add from Phone'}</span>
+                </button>
+                <button class="btn on-light rounded multi faded large-pad" data-cmd=facebook>
+                    <i class="icon-facebook"></i>
+                    <span>{model.lang.btn_fb}</span>
+                </button>
+                <button class="btn on-light rounded multi faded large-pad" data-cmd=instagram>
+                    <i class="icon-instagram"></i>
+                    <span>{model.lang.btn_ig}</span>
+                </button>
+            </div>
+        </section>
+        <!-- VARIABLE DATA MODULE -->
+        <section rv-class-selected="model.selected" data-module="module-variable-data" rv-on-input="model.input" rv-on-change="model.input" rv-on-click="model.click" class="variable-data">
+            <div rv-html="model.description" class="desc"></div>
+            <div class="vd-page-parent">
+                <div class="upload-div" data-cmd="upload" >
+                    <i class="icon-upload-cloud"></i>
+                    <p>{model.lang.button_label}</p>
+                </div>
+                <div class="items-parent is-scroll">
+                    <div class="items">
+                        <div rv-class-selected="item.selected" rv-data-idx="%item%" data-cmd="item" rv-each-item="model.items" class="item">
+                            <div class="lbl">{item.vdTitle}</div>
+                            <div class="remove close" rv-data-idx="%item%" data-cmd="remove"><i class="icon-x"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--IMAGE SOURCE PICKER-->
+        <section data-module="image-source-picker" class="image-source" rv-on-click="model.click">
+            <button class="btn primary" data-cmd="uploads"><i class="icon-upload-cloud"></i></button>
+            <button class="btn primary" data-cmd="pictures"><i class="icon-image"></i></button>
+            <button class="btn primary" data-cmd="facebook"><i class="icon-facebook"></i></button>
+            <button class="btn primary" data-cmd="instagram"><i class="icon-instagram"></i></button>
+            <button class="btn primary" data-cmd="search"><i class="icon-search"></i></button>
+        </section>
+    </modules>
+
